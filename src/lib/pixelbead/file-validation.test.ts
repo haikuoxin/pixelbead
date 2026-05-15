@@ -1,0 +1,25 @@
+import { describe, expect, it } from "vitest";
+import { validateImageFile } from "./file-validation";
+
+function file(name: string, type: string) {
+  return new File(["x"], name, { type });
+}
+
+describe("validateImageFile", () => {
+  it("accepts jpg png and webp", () => {
+    expect(validateImageFile(file("photo.jpg", "image/jpeg")).ok).toBe(true);
+    expect(validateImageFile(file("photo.png", "image/png")).ok).toBe(true);
+    expect(validateImageFile(file("photo.webp", "image/webp")).ok).toBe(true);
+  });
+
+  it("rejects heic and gif", () => {
+    expect(validateImageFile(file("photo.heic", "image/heic"))).toEqual({
+      ok: false,
+      code: "unsupported_format",
+    });
+    expect(validateImageFile(file("moving.gif", "image/gif"))).toEqual({
+      ok: false,
+      code: "unsupported_format",
+    });
+  });
+});
