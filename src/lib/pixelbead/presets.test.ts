@@ -1,0 +1,14 @@
+import { describe, expect, it } from "vitest";
+import { BEAD_BOARD_PRESETS, COLOR_MODES, getColorCount } from "./presets";
+
+describe("PixelBead presets", () => {
+  it("uses bead-board sizes as default presets", () => {
+    expect(BEAD_BOARD_PRESETS.map((preset) => preset.label)).toEqual(["29 x 29", "58 x 58", "87 x 87"]);
+  });
+
+  it("orders color modes from simple to detailed", () => {
+    expect(getColorCount("simple")).toBeLessThan(getColorCount("standard"));
+    expect(getColorCount("standard")).toBeLessThan(getColorCount("detailed"));
+    expect(COLOR_MODES.map((mode) => mode.id)).toEqual(["simple", "standard", "detailed"]);
+  });
+});
