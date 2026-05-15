@@ -9,6 +9,7 @@
     "lint": "eslint",
     "test": "vitest run",
     "test:watch": "vitest",
+    "e2e:install": "playwright install chromium",
     "e2e": "playwright test"
   },
   "dependencies": {
