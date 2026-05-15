@@ -1,5 +1,3 @@
-import type { PixelBeadErrorCode } from "./types";
-
 const supportedFileTypes = new Map([
   [".jpg", "image/jpeg"],
   [".jpeg", "image/jpeg"],
@@ -7,7 +5,7 @@ const supportedFileTypes = new Map([
   [".webp", "image/webp"],
 ]);
 
-export type ValidationResult = { ok: true } | { ok: false; code: PixelBeadErrorCode };
+export type ValidationResult = { ok: true } | { ok: false; code: "unsupported_format" };
 
 export function validateImageFile(file: File): ValidationResult {
   const lowerName = file.name.toLowerCase();

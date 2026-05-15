@@ -5,6 +5,7 @@ export interface LoadedImage {
   element: HTMLImageElement;
   width: number;
   height: number;
+  revoke: () => void;
 }
 
 export async function loadImageFromFile(file: File): Promise<LoadedImage> {
@@ -14,11 +15,27 @@ export async function loadImageFromFile(file: File): Promise<LoadedImage> {
 
   try {
     await new Promise<void>((resolve, reject) => {
-      image.onload = () => resolve();
-      image.onerror = () => reject(new Error("image_load_failed"));
+      const clearHandlers = () => {
+        image.onload = null;
+        image.onerror = null;
+      };
+      image.onload = () => {
+        clearHandlers();
+        resolve();
+      };
+      image.onerror = () => {
+        clearHandlers();
+        reject(new Error("image_load_failed"));
+      };
       image.src = url;
     });
-    return { url, element: image, width: image.naturalWidth, height: image.naturalHeight };
+    return {
+      url,
+      element: image,
+      width: image.naturalWidth,
+      height: image.naturalHeight,
+      revoke: () => URL.revokeObjectURL(url),
+    };
   } catch {
     URL.revokeObjectURL(url);
     const code: PixelBeadErrorCode = "image_load_failed";

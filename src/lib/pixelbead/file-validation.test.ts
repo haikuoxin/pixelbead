@@ -9,6 +9,8 @@ describe("validateImageFile", () => {
   it("accepts jpg png and webp", () => {
     expect(validateImageFile(file("photo.jpg", "image/jpeg")).ok).toBe(true);
     expect(validateImageFile(file("photo.jpeg", "image/jpeg")).ok).toBe(true);
+    expect(validateImageFile(file("photo.JPG", "image/jpeg")).ok).toBe(true);
+    expect(validateImageFile(file("photo.JPEG", "image/jpeg")).ok).toBe(true);
     expect(validateImageFile(file("photo.png", "image/png")).ok).toBe(true);
     expect(validateImageFile(file("photo.webp", "image/webp")).ok).toBe(true);
   });
@@ -34,6 +36,21 @@ describe("validateImageFile", () => {
       code: "unsupported_format",
     });
     expect(validateImageFile(file("photo.jpg", "image/webp"))).toEqual({
+      ok: false,
+      code: "unsupported_format",
+    });
+    expect(validateImageFile(file("photo.jpeg", "image/png"))).toEqual({
+      ok: false,
+      code: "unsupported_format",
+    });
+  });
+
+  it("rejects files with missing MIME type or extension", () => {
+    expect(validateImageFile(file("photo.jpg", ""))).toEqual({
+      ok: false,
+      code: "unsupported_format",
+    });
+    expect(validateImageFile(file("photo", "image/jpeg"))).toEqual({
       ok: false,
       code: "unsupported_format",
     });
