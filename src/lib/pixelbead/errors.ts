@@ -1,5 +1,20 @@
 import type { Language, PixelBeadErrorCode } from "./types";
 
+const pixelBeadErrorCodeMap = {
+  unsupported_format: true,
+  file_read_failed: true,
+  image_load_failed: true,
+  image_too_large: true,
+  missing_image: true,
+  invalid_crop: true,
+  invalid_grid_size: true,
+  invalid_color_count: true,
+  missing_browser_api: true,
+  export_failed: true,
+} as const satisfies Record<PixelBeadErrorCode, true>;
+
+export const PIXEL_BEAD_ERROR_CODES = Object.freeze(Object.keys(pixelBeadErrorCodeMap) as PixelBeadErrorCode[]);
+
 const messages: Record<Language, Record<PixelBeadErrorCode, string>> = {
   zh: {
     unsupported_format: "不支持这种图片格式。请上传 JPG、PNG 或 WebP。",

@@ -3,7 +3,11 @@ import { BEAD_BOARD_PRESETS, COLOR_MODES, getColorCount } from "./presets";
 
 describe("PixelBead presets", () => {
   it("uses bead-board sizes as default presets", () => {
-    expect(BEAD_BOARD_PRESETS.map((preset) => preset.label)).toEqual(["29 x 29", "58 x 58", "87 x 87"]);
+    expect(BEAD_BOARD_PRESETS).toEqual([
+      { id: "29", label: "29 x 29", width: 29, height: 29 },
+      { id: "58", label: "58 x 58", width: 58, height: 58 },
+      { id: "87", label: "87 x 87", width: 87, height: 87 },
+    ]);
   });
 
   it("orders color modes from simple to detailed", () => {
