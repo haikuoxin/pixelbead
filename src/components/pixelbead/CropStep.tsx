@@ -7,6 +7,7 @@ import { extractGridColors } from "../../lib/pixelbead/crop";
 import { buildPatternFromColors } from "../../lib/pixelbead/pattern";
 import { BEAD_BOARD_PRESETS } from "../../lib/pixelbead/presets";
 import type { BeadPattern, GridSize } from "../../lib/pixelbead/types";
+import { getNaturalPixelCrop } from "./crop-coordinate";
 
 type PixelBeadCopy = ReturnType<typeof getCopy>;
 
@@ -85,21 +86,12 @@ export function CropStep({
       return;
     }
 
-    const activeCrop = completedCrop ?? {
-      x: 0,
-      y: 0,
-      width: rendered.width,
-      height: rendered.height,
-      unit: "px" as const,
-    };
-    const scaleX = image.naturalWidth / rendered.width;
-    const scaleY = image.naturalHeight / rendered.height;
-    const naturalCrop = {
-      x: activeCrop.x * scaleX,
-      y: activeCrop.y * scaleY,
-      width: activeCrop.width * scaleX,
-      height: activeCrop.height * scaleY,
-    };
+    const naturalCrop = getNaturalPixelCrop({
+      completedCrop,
+      currentCrop: crop,
+      renderedSize: { width: rendered.width, height: rendered.height },
+      naturalSize: { width: image.naturalWidth, height: image.naturalHeight },
+    });
 
     try {
       const colors = extractGridColors(image, naturalCrop, grid);
