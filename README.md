@@ -11,25 +11,43 @@ Build an image-to-pattern workflow for pixel bead creators:
 1. Upload or import a source image.
 2. Crop and choose the target bead board size.
 3. Convert the image into a pixel grid.
-4. Reduce colors into a practical bead palette.
-5. Preview the final pattern with grid lines and color labels.
-6. Export the pattern for making the physical bead artwork.
+4. Segment the main subject by default and remove visual noise from the background.
+5. Reduce colors into a practical bead palette.
+6. Preview the final pattern with grid lines and color labels.
+7. Export the pattern for making the physical bead artwork.
 
 ## MVP Scope
 
 - Image upload from local device.
 - Crop and resize to a fixed grid size.
 - Pixelation preview.
-- Limited color quantization.
+- Subject-first conversion mode for people, toys, pets, vehicles, characters, and other clear image subjects.
+- Whole-image conversion mode for scenes or images where the background should remain part of the pattern.
+- Limited color quantization with subject-mode color presets.
 - Grid overlay for bead placement.
+- Empty, white, or light-gray background treatment for removed background cells.
 - Export as PNG.
+
+## Subject-First Conversion
+
+The default conversion mode focuses on the main subject instead of flattening the whole photo into a bead grid. This is important for phone photos where shelves, desks, walls, and other background details can dominate the color palette and make the pattern unreadable.
+
+The current workflow is:
+
+1. Upload an image.
+2. Crop around the object that should become the bead pattern.
+3. Keep the default `Subject first` mode, or switch to `Whole image` when the full scene matters.
+4. Choose how removed background cells should appear: empty, white, or light gray.
+5. Confirm the crop and review the grid, color counts, and warnings.
+
+Subject segmentation runs in the browser with an open-source local model package. Images are not sent to a paid external API.
 
 ## Future Ideas
 
 - Map colors to real bead brands and color codes.
 - Generate a material list with bead counts per color.
-- Support transparent backgrounds and portrait cutouts.
-- Add face-aware cropping for selfies and celebrity photos.
+- Map transparent exports to bead-board templates.
+- Add smarter subject-aware crop suggestions.
 - Export PDF instructions.
 - Save and reopen projects.
 - Mobile-first workflow for phone users.

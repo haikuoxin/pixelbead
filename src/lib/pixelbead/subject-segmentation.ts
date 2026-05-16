@@ -71,8 +71,8 @@ export async function createImglySubjectSegmentationProvider(): Promise<SubjectS
   }
 
   try {
-    const module = await import("@imgly/background-removal");
-    return createSubjectSegmentationProvider(module.removeBackground);
+    const backgroundRemoval = await import("@imgly/background-removal");
+    return createSubjectSegmentationProvider(backgroundRemoval.removeBackground);
   } catch {
     throw codedError("subject_model_load_failed");
   }
