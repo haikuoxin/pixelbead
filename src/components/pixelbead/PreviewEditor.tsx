@@ -4,7 +4,7 @@ import { useState } from "react";
 import type { getCopy } from "../../lib/pixelbead/copy";
 import { getErrorCode, getErrorMessage } from "../../lib/pixelbead/errors";
 import { downloadPatternPng } from "../../lib/pixelbead/export-png";
-import type { BeadPattern, GridSize, Language } from "../../lib/pixelbead/types";
+import type { BeadPattern, ConversionMode, GridSize, Language, SubjectWarning } from "../../lib/pixelbead/types";
 import { ColorStats } from "./ColorStats";
 import { PatternCanvas } from "./PatternCanvas";
 
@@ -16,6 +16,8 @@ interface PreviewEditorProps {
   pattern: BeadPattern;
   originalUrl: string;
   grid: GridSize;
+  conversionMode: ConversionMode;
+  subjectWarnings: SubjectWarning[];
 }
 
 export function PreviewEditor({ copy, language, pattern, originalUrl, grid }: PreviewEditorProps) {

@@ -5,9 +5,12 @@ import ReactCrop, { centerCrop, makeAspectCrop, type Crop, type PixelCrop as Rea
 import type { getCopy } from "../../lib/pixelbead/copy";
 import { extractGridColors } from "../../lib/pixelbead/crop";
 import { getErrorCode, getErrorMessage } from "../../lib/pixelbead/errors";
+import { buildMaskedPatternFromColors } from "../../lib/pixelbead/masked-pattern";
 import { buildPatternFromColors } from "../../lib/pixelbead/pattern";
 import { BEAD_BOARD_PRESETS } from "../../lib/pixelbead/presets";
-import type { BeadPattern, GridSize, Language } from "../../lib/pixelbead/types";
+import { createImglySubjectSegmentationProvider } from "../../lib/pixelbead/subject-segmentation";
+import { getSubjectWarnings, sampleMaskToGrid } from "../../lib/pixelbead/subject-mask";
+import type { BackgroundTreatment, BeadPattern, ConversionMode, GridSize, Language, SubjectWarning } from "../../lib/pixelbead/types";
 import { getNaturalPixelCrop } from "./crop-coordinate";
 import { createCroppedPreviewUrl } from "./crop-preview";
 
@@ -22,6 +25,13 @@ interface CropStepProps {
   onGridChange: (grid: GridSize) => void;
   onPatternReady: (pattern: BeadPattern, croppedPreviewUrl: string) => void;
   defaultColorCount: number;
+  conversionMode: ConversionMode;
+  backgroundTreatment: BackgroundTreatment;
+  onSubjectWarningsChange: (warnings: SubjectWarning[]) => void;
+  onSubjectProcessingChange: (processing: boolean) => void;
+  isSubjectProcessing: boolean;
+  onConversionModeChange: (mode: ConversionMode) => void;
+  onBackgroundTreatmentChange: (treatment: BackgroundTreatment) => void;
 }
 
 function clampGridValue(value: number) {
@@ -56,6 +66,11 @@ export function CropStep({
   onGridChange,
   onPatternReady,
   defaultColorCount,
+  conversionMode,
+  backgroundTreatment,
+  onSubjectWarningsChange,
+  onSubjectProcessingChange,
+  isSubjectProcessing,
 }: CropStepProps) {
   const renderedImageRef = useRef<HTMLImageElement | null>(null);
   const [crop, setCrop] = useState<Crop>();
@@ -95,8 +110,24 @@ export function CropStep({
 
     try {
       const colors = extractGridColors(image, naturalCrop, grid);
-      const pattern = buildPatternFromColors(colors, grid, colorCount);
       const croppedPreviewUrl = await createCroppedPreviewUrl(image, naturalCrop);
+      if (conversionMode === "subject") {
+        onSubjectProcessingChange(true);
+        try {
+          const provider = await createImglySubjectSegmentationProvider();
+          const mask = await provider.segment(image, naturalCrop);
+          const foreground = sampleMaskToGrid(mask, grid);
+          const pattern = buildMaskedPatternFromColors(colors, foreground, grid, colorCount, { backgroundTreatment });
+          onSubjectWarningsChange(getSubjectWarnings(foreground, grid));
+          onPatternReady(pattern, croppedPreviewUrl);
+          return;
+        } finally {
+          onSubjectProcessingChange(false);
+        }
+      }
+
+      const pattern = buildPatternFromColors(colors, grid, colorCount);
+      onSubjectWarningsChange([]);
       onPatternReady(pattern, croppedPreviewUrl);
     } catch (cropError) {
       setError(getErrorMessage(language, getErrorCode(cropError, "invalid_crop")));
@@ -196,6 +227,7 @@ export function CropStep({
         <button
           type="button"
           onClick={() => void handleConfirm()}
+          disabled={isSubjectProcessing}
           className="min-h-11 w-full bg-zinc-950 px-4 text-sm font-semibold text-white hover:bg-zinc-800"
         >
           {copy.crop.confirm}

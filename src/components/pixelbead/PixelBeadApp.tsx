@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import type { BeadPattern, GridSize, Language, WorkflowStep } from "../../lib/pixelbead/types";
+import type { BackgroundTreatment, BeadPattern, ConversionMode, GridSize, Language, SubjectWarning, WorkflowStep } from "../../lib/pixelbead/types";
 import { getCopy } from "../../lib/pixelbead/copy";
-import { BEAD_BOARD_PRESETS, getColorCount } from "../../lib/pixelbead/presets";
+import { BEAD_BOARD_PRESETS, DEFAULT_CONVERSION_MODE, getSubjectColorCount } from "../../lib/pixelbead/presets";
 import { UploadStep } from "./UploadStep";
 import { CropStep } from "./CropStep";
 import { PreviewEditor } from "./PreviewEditor";
@@ -20,6 +20,10 @@ export function PixelBeadApp() {
   const [croppedPreviewUrl, setCroppedPreviewUrl] = useState("");
   const [grid, setGrid] = useState<GridSize>(BEAD_BOARD_PRESETS[0]);
   const [pattern, setPattern] = useState<BeadPattern | null>(null);
+  const [conversionMode, setConversionMode] = useState<ConversionMode>(DEFAULT_CONVERSION_MODE);
+  const [backgroundTreatment, setBackgroundTreatment] = useState<BackgroundTreatment>("empty");
+  const [subjectWarnings, setSubjectWarnings] = useState<SubjectWarning[]>([]);
+  const [isSubjectProcessing, setIsSubjectProcessing] = useState(false);
   const copy = useMemo(() => getCopy(language), [language]);
 
   useEffect(() => {
@@ -50,6 +54,7 @@ export function PixelBeadApp() {
               revokeCurrentCallback(croppedPreviewRevokeRef);
               setCroppedPreviewUrl("");
               setPattern(null);
+              setSubjectWarnings([]);
               setImage(loaded.element);
               setImageUrl(loaded.url);
               setStep("crop");
@@ -69,11 +74,26 @@ export function PixelBeadApp() {
               replaceCroppedPreviewUrl(nextCroppedPreviewUrl);
               setStep("preview");
             }}
-            defaultColorCount={getColorCount("standard")}
+            defaultColorCount={getSubjectColorCount("standard")}
+            conversionMode={conversionMode}
+            backgroundTreatment={backgroundTreatment}
+            onSubjectWarningsChange={setSubjectWarnings}
+            onSubjectProcessingChange={setIsSubjectProcessing}
+            isSubjectProcessing={isSubjectProcessing}
+            onConversionModeChange={setConversionMode}
+            onBackgroundTreatmentChange={setBackgroundTreatment}
           />
         )}
         {step === "preview" && pattern && croppedPreviewUrl && (
-          <PreviewEditor copy={copy} language={language} pattern={pattern} originalUrl={croppedPreviewUrl} grid={grid} />
+          <PreviewEditor
+            copy={copy}
+            language={language}
+            pattern={pattern}
+            originalUrl={croppedPreviewUrl}
+            grid={grid}
+            conversionMode={conversionMode}
+            subjectWarnings={subjectWarnings}
+          />
         )}
       </div>
     </main>
