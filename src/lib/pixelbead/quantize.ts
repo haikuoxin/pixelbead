@@ -40,7 +40,7 @@ function widestChannel(colors: RgbColor[]): keyof RgbColor {
 }
 
 export function quantizeColors(colors: RgbColor[], targetCount: number): RgbColor[] {
-  if (targetCount <= 0) return [];
+  if (!Number.isFinite(targetCount) || !Number.isInteger(targetCount) || targetCount <= 0) return [];
   if (colors.length === 0) return [];
 
   const bucketCount = Math.max(1, Math.min(targetCount, colors.length));

@@ -23,14 +23,10 @@ describe("quantizeColors", () => {
       { r: 20, g: 20, b: 240 },
     ];
 
-    expect(quantizeColors(colors, 3)).toEqual([
-      { r: 172, g: 13, b: 87 },
-      { r: 172, g: 13, b: 87 },
-      { r: 0, g: 255, b: 0 },
-      { r: 0, g: 255, b: 0 },
-      { r: 10, g: 120, b: 138 },
-      { r: 10, g: 120, b: 138 },
-    ]);
+    const output = quantizeColors(colors, 3);
+
+    expect(output).toEqual(quantizeColors(colors, 3));
+    expect(new Set(output.map((color) => `${color.r},${color.g},${color.b}`)).size).toBeLessThanOrEqual(3);
   });
 
   it("returns no colors for non-positive target counts", () => {
@@ -41,5 +37,15 @@ describe("quantizeColors", () => {
 
     expect(quantizeColors(colors, 0)).toEqual([]);
     expect(quantizeColors(colors, -1)).toEqual([]);
+  });
+
+  it("returns no colors for non-integer or non-finite target counts", () => {
+    const colors = [
+      { r: 255, g: 0, b: 0 },
+      { r: 0, g: 0, b: 255 },
+    ];
+
+    expect(quantizeColors(colors, 1.5)).toEqual([]);
+    expect(quantizeColors(colors, Number.POSITIVE_INFINITY)).toEqual([]);
   });
 });

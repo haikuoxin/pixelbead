@@ -53,6 +53,31 @@ describe("buildPatternFromColors", () => {
     expect(pattern.cells[0].color.hex).toBe("#ffffff");
   });
 
+  it("uses a supplied custom palette", () => {
+    const customPalette = [
+      { r: 0, g: 0, b: 0, hex: "#000000" },
+      { r: 255, g: 0, b: 0, hex: "#ff0000" },
+    ] as const;
+    const pattern = buildPatternFromColors([{ r: 250, g: 250, b: 250 }], { width: 1, height: 1 }, 1, {
+      palette: customPalette,
+    });
+
+    expect(pattern.cells[0].color.hex).toBe("#ff0000");
+  });
+
+  it("throws a coded error for invalid rgb input", () => {
+    for (const color of [
+      { r: -1, g: 0, b: 0 },
+      { r: 0, g: 256, b: 0 },
+      { r: 0, g: 0, b: 1.5 },
+      { r: Number.POSITIVE_INFINITY, g: 0, b: 0 },
+    ]) {
+      const error = captureError(() => buildPatternFromColors([color], { width: 1, height: 1 }, 1));
+
+      expect(error).toMatchObject({ code: "invalid_color_count" });
+    }
+  });
+
   it("sorts color stats by descending count", () => {
     const pattern = buildPatternFromColors(
       [

@@ -1,9 +1,10 @@
 import type { PaletteColor, RgbColor } from "./types";
+import { codedError } from "./coded-error";
 
 export function rgbToHex(color: RgbColor): string {
   for (const value of [color.r, color.g, color.b]) {
     if (!Number.isInteger(value) || value < 0 || value > 255) {
-      throw new Error("invalid_rgb_color");
+      throw codedError("invalid_color_count", "invalid_rgb_color");
     }
   }
 
@@ -12,7 +13,7 @@ export function rgbToHex(color: RgbColor): string {
 
 export function hexToRgb(hex: string): RgbColor {
   if (!/^#?[0-9a-fA-F]{6}$/.test(hex)) {
-    throw new Error("invalid_hex_color");
+    throw codedError("invalid_color_count", "invalid_hex_color");
   }
 
   const normalized = hex.replace("#", "");
@@ -79,7 +80,7 @@ export function colorDistance(a: RgbColor, b: RgbColor): number {
 
 export function nearestPaletteColor(input: RgbColor, palette: readonly PaletteColor[] = GENERAL_PALETTE): PaletteColor {
   if (palette.length === 0) {
-    throw new Error("empty_palette");
+    throw codedError("invalid_color_count", "empty_palette");
   }
 
   return palette.reduce(
