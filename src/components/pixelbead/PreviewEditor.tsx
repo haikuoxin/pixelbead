@@ -20,7 +20,7 @@ interface PreviewEditorProps {
   subjectWarnings: SubjectWarning[];
 }
 
-export function PreviewEditor({ copy, language, pattern, originalUrl, grid }: PreviewEditorProps) {
+export function PreviewEditor({ copy, language, pattern, originalUrl, grid, conversionMode, subjectWarnings }: PreviewEditorProps) {
   const [view, setView] = useState<"result" | "original">("result");
   const [includeStats, setIncludeStats] = useState(true);
   const [exportError, setExportError] = useState("");
@@ -41,6 +41,9 @@ export function PreviewEditor({ copy, language, pattern, originalUrl, grid }: Pr
           <h2 className="text-xl font-semibold">{copy.preview.title}</h2>
           <p className="mt-1 text-sm text-zinc-600">
             {grid.width} x {grid.height}
+          </p>
+          <p className="mt-1 text-sm text-zinc-600">
+            {conversionMode === "subject" ? copy.conversion.subject : copy.conversion.whole}
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
@@ -95,6 +98,11 @@ export function PreviewEditor({ copy, language, pattern, originalUrl, grid }: Pr
       )}
 
       {exportError && <p className="text-sm font-medium text-red-700">{exportError}</p>}
+      {subjectWarnings.map((warning) => (
+        <p key={warning.code} className="text-sm font-medium text-amber-700">
+          {copy.subject[warning.code]}
+        </p>
+      ))}
       <ColorStats stats={pattern.stats} />
     </section>
   );

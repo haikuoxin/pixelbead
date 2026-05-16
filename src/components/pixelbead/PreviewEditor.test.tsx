@@ -17,16 +17,42 @@ vi.mock("../../lib/pixelbead/export-png", () => ({
 const pattern: BeadPattern = {
   width: 1,
   height: 1,
-  cells: [{ x: 0, y: 0, color: { r: 0, g: 0, b: 0, hex: "#000000" } }],
+  cells: [{ x: 0, y: 0, kind: "bead", color: { r: 0, g: 0, b: 0, hex: "#000000" } }],
   stats: [{ color: { r: 0, g: 0, b: 0, hex: "#000000" }, count: 1 }],
 };
 
 describe("PreviewEditor", () => {
   it("shows an inline error when PNG export fails", async () => {
-    render(<PreviewEditor copy={getCopy("zh")} language="zh" pattern={pattern} originalUrl="blob:crop" grid={{ width: 1, height: 1 }} />);
+    render(
+      <PreviewEditor
+        copy={getCopy("zh")}
+        language="zh"
+        pattern={pattern}
+        originalUrl="blob:crop"
+        grid={{ width: 1, height: 1 }}
+        conversionMode="subject"
+        subjectWarnings={[]}
+      />,
+    );
 
     fireEvent.click(screen.getByRole("button", { name: "导出 PNG" }));
 
     expect(screen.getByText("导出失败，请重试。")).toBeVisible();
+  });
+
+  it("shows subject warnings when provided", () => {
+    render(
+      <PreviewEditor
+        copy={getCopy("zh")}
+        language="zh"
+        pattern={pattern}
+        originalUrl="blob:crop"
+        grid={{ width: 1, height: 1 }}
+        conversionMode="subject"
+        subjectWarnings={[{ code: "subject_detail_low" }]}
+      />,
+    );
+
+    expect(screen.getByText("主体在当前尺寸下细节偏少，建议裁剪更近或使用 87 x 87。")).toBeInTheDocument();
   });
 });

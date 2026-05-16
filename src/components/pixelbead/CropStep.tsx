@@ -71,6 +71,8 @@ export function CropStep({
   onSubjectWarningsChange,
   onSubjectProcessingChange,
   isSubjectProcessing,
+  onConversionModeChange,
+  onBackgroundTreatmentChange,
 }: CropStepProps) {
   const renderedImageRef = useRef<HTMLImageElement | null>(null);
   const [crop, setCrop] = useState<Crop>();
@@ -183,6 +185,64 @@ export function CropStep({
           </div>
         </div>
 
+        <div className="space-y-3">
+          <div className="space-y-2">
+            <h3 className="text-sm font-semibold text-zinc-900">{copy.conversion.title}</h3>
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                aria-pressed={conversionMode === "subject"}
+                onClick={() => onConversionModeChange("subject")}
+                className={`min-h-10 border px-2 text-sm font-medium ${
+                  conversionMode === "subject"
+                    ? "border-zinc-950 bg-zinc-950 text-white"
+                    : "border-zinc-300 bg-white text-zinc-700 hover:border-zinc-700"
+                }`}
+              >
+                {copy.conversion.subject}
+              </button>
+              <button
+                type="button"
+                aria-pressed={conversionMode === "whole"}
+                onClick={() => onConversionModeChange("whole")}
+                className={`min-h-10 border px-2 text-sm font-medium ${
+                  conversionMode === "whole"
+                    ? "border-zinc-950 bg-zinc-950 text-white"
+                    : "border-zinc-300 bg-white text-zinc-700 hover:border-zinc-700"
+                }`}
+              >
+                {copy.conversion.whole}
+              </button>
+            </div>
+            <p className="text-xs leading-5 text-zinc-600">
+              {conversionMode === "subject" ? copy.conversion.subjectHint : copy.conversion.wholeHint}
+            </p>
+          </div>
+
+          {conversionMode === "subject" && (
+            <div className="space-y-2">
+              <h3 className="text-sm font-semibold text-zinc-900">{copy.background.title}</h3>
+              <div className="grid grid-cols-3 gap-2">
+                {(["empty", "white", "lightGray"] as const).map((treatment) => (
+                  <button
+                    key={treatment}
+                    type="button"
+                    aria-pressed={backgroundTreatment === treatment}
+                    onClick={() => onBackgroundTreatmentChange(treatment)}
+                    className={`min-h-10 border px-2 text-sm font-medium ${
+                      backgroundTreatment === treatment
+                        ? "border-zinc-950 bg-zinc-950 text-white"
+                        : "border-zinc-300 bg-white text-zinc-700 hover:border-zinc-700"
+                    }`}
+                  >
+                    {copy.background[treatment]}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+
         <details className="space-y-3 border border-zinc-200 bg-white p-3">
           <summary className="cursor-pointer text-sm font-semibold text-zinc-900">{copy.crop.advanced}</summary>
           <div className="grid grid-cols-2 gap-2 pt-3">
@@ -223,6 +283,7 @@ export function CropStep({
           </label>
         </details>
 
+        {isSubjectProcessing && <p className="text-sm font-medium text-zinc-700">{copy.subject.processing}</p>}
         {error && <p className="text-sm font-medium text-red-700">{error}</p>}
         <button
           type="button"

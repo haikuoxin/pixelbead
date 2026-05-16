@@ -39,4 +39,9 @@ describe("copy dictionary", () => {
     expect(copy.preview.includeStats).toBeTruthy();
     expect(copy.preview.originalAlt).toBeTruthy();
   });
+
+  it("includes subject-first conversion copy", () => {
+    expect(getCopy("zh").conversion.subject).toContain("主体");
+    expect(getCopy("en").conversion.subject).toContain("Subject");
+  });
 });
