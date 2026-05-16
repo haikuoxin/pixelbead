@@ -6,6 +6,10 @@ function invalidGridSizeError(): Error & { code: "invalid_grid_size" } {
   return Object.assign(new Error("invalid_grid_size"), { code: "invalid_grid_size" as const });
 }
 
+function invalidColorCountError(): Error & { code: "invalid_color_count" } {
+  return Object.assign(new Error("invalid_color_count"), { code: "invalid_color_count" as const });
+}
+
 function isValidGridSize(grid: GridSize): boolean {
   return Number.isInteger(grid.width) && Number.isInteger(grid.height) && grid.width > 0 && grid.height > 0;
 }
@@ -13,6 +17,9 @@ function isValidGridSize(grid: GridSize): boolean {
 export function buildPatternFromColors(colors: RgbColor[], grid: GridSize, colorCount: number): BeadPattern {
   if (!isValidGridSize(grid) || colors.length !== grid.width * grid.height) {
     throw invalidGridSizeError();
+  }
+  if (!Number.isInteger(colorCount) || colorCount <= 0) {
+    throw invalidColorCountError();
   }
 
   const quantized = quantizeColors(colors, colorCount);

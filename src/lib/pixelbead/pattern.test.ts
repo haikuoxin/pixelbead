@@ -103,4 +103,12 @@ describe("buildPatternFromColors", () => {
       expect(error).toMatchObject({ code: "invalid_grid_size" });
     }
   });
+
+  it("throws a coded error when color count is not a positive integer", () => {
+    for (const colorCount of [0, -1, 1.5]) {
+      const error = captureError(() => buildPatternFromColors([{ r: 255, g: 0, b: 0 }], { width: 1, height: 1 }, colorCount));
+
+      expect(error).toMatchObject({ code: "invalid_color_count" });
+    }
+  });
 });
