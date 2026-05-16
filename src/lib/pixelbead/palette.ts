@@ -1,10 +1,20 @@
 import type { PaletteColor, RgbColor } from "./types";
 
 export function rgbToHex(color: RgbColor): string {
+  for (const value of [color.r, color.g, color.b]) {
+    if (!Number.isInteger(value) || value < 0 || value > 255) {
+      throw new Error("invalid_rgb_color");
+    }
+  }
+
   return `#${[color.r, color.g, color.b].map((value) => value.toString(16).padStart(2, "0")).join("")}`;
 }
 
 export function hexToRgb(hex: string): RgbColor {
+  if (!/^#?[0-9a-fA-F]{6}$/.test(hex)) {
+    throw new Error("invalid_hex_color");
+  }
+
   const normalized = hex.replace("#", "");
 
   return {
@@ -15,10 +25,10 @@ export function hexToRgb(hex: string): RgbColor {
 }
 
 function color(hex: string): PaletteColor {
-  return { ...hexToRgb(hex), hex };
+  return Object.freeze({ ...hexToRgb(hex), hex }) as PaletteColor;
 }
 
-export const GENERAL_PALETTE: PaletteColor[] = [
+export const GENERAL_PALETTE: readonly PaletteColor[] = Object.freeze([
   "#000000",
   "#ffffff",
   "#1f2937",
@@ -61,13 +71,17 @@ export const GENERAL_PALETTE: PaletteColor[] = [
   "#365314",
   "#84cc16",
   "#d9f99d",
-].map(color);
+].map(color));
 
 export function colorDistance(a: RgbColor, b: RgbColor): number {
   return (a.r - b.r) ** 2 + (a.g - b.g) ** 2 + (a.b - b.b) ** 2;
 }
 
-export function nearestPaletteColor(input: RgbColor, palette = GENERAL_PALETTE): PaletteColor {
+export function nearestPaletteColor(input: RgbColor, palette: readonly PaletteColor[] = GENERAL_PALETTE): PaletteColor {
+  if (palette.length === 0) {
+    throw new Error("empty_palette");
+  }
+
   return palette.reduce(
     (best, candidate) => (colorDistance(input, candidate) < colorDistance(input, best) ? candidate : best),
     palette[0],

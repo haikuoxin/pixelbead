@@ -1,6 +1,14 @@
 import { describe, expect, it } from "vitest";
 import { buildPatternFromColors } from "./pattern";
 
+function captureError(run: () => void): unknown {
+  try {
+    run();
+  } catch (error) {
+    return error;
+  }
+}
+
 describe("buildPatternFromColors", () => {
   it("creates cells and counts colors", () => {
     const pattern = buildPatternFromColors(
@@ -59,5 +67,40 @@ describe("buildPatternFromColors", () => {
     );
 
     expect(pattern.stats.map((stat) => stat.count)).toEqual([3, 2]);
+  });
+
+  it("throws a coded error when color input is longer than the grid", () => {
+    const error = captureError(() =>
+      buildPatternFromColors(
+        [
+          { r: 255, g: 0, b: 0 },
+          { r: 0, g: 255, b: 0 },
+          { r: 0, g: 0, b: 255 },
+        ],
+        { width: 2, height: 1 },
+        2,
+      ),
+    );
+
+    expect(error).toMatchObject({ code: "invalid_grid_size" });
+  });
+
+  it("throws a coded error when color input is shorter than the grid", () => {
+    const error = captureError(() => buildPatternFromColors([{ r: 255, g: 0, b: 0 }], { width: 2, height: 1 }, 2));
+
+    expect(error).toMatchObject({ code: "invalid_grid_size" });
+  });
+
+  it("throws a coded error when grid dimensions are not positive integers", () => {
+    for (const grid of [
+      { width: 0, height: 1 },
+      { width: 1, height: 0 },
+      { width: -1, height: 1 },
+      { width: 1.5, height: 1 },
+    ]) {
+      const error = captureError(() => buildPatternFromColors([], grid, 2));
+
+      expect(error).toMatchObject({ code: "invalid_grid_size" });
+    }
   });
 });

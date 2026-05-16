@@ -14,13 +14,29 @@ function average(colors: RgbColor[]): RgbColor {
 }
 
 function widestChannel(colors: RgbColor[]): keyof RgbColor {
-  const ranges = {
-    r: Math.max(...colors.map((color) => color.r)) - Math.min(...colors.map((color) => color.r)),
-    g: Math.max(...colors.map((color) => color.g)) - Math.min(...colors.map((color) => color.g)),
-    b: Math.max(...colors.map((color) => color.b)) - Math.min(...colors.map((color) => color.b)),
+  let minR = Number.POSITIVE_INFINITY;
+  let minG = Number.POSITIVE_INFINITY;
+  let minB = Number.POSITIVE_INFINITY;
+  let maxR = Number.NEGATIVE_INFINITY;
+  let maxG = Number.NEGATIVE_INFINITY;
+  let maxB = Number.NEGATIVE_INFINITY;
+
+  for (const color of colors) {
+    minR = Math.min(minR, color.r);
+    minG = Math.min(minG, color.g);
+    minB = Math.min(minB, color.b);
+    maxR = Math.max(maxR, color.r);
+    maxG = Math.max(maxG, color.g);
+    maxB = Math.max(maxB, color.b);
+  }
+
+  const channelRanges = {
+    r: maxR - minR,
+    g: maxG - minG,
+    b: maxB - minB,
   };
 
-  return Object.entries(ranges).sort((a, b) => b[1] - a[1])[0][0] as keyof RgbColor;
+  return Object.entries(channelRanges).sort((a, b) => b[1] - a[1])[0][0] as keyof RgbColor;
 }
 
 export function quantizeColors(colors: RgbColor[], targetCount: number): RgbColor[] {

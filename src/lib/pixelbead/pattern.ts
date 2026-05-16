@@ -2,7 +2,19 @@ import type { BeadPattern, GridSize, RgbColor } from "./types";
 import { nearestPaletteColor } from "./palette";
 import { quantizeColors } from "./quantize";
 
+function invalidGridSizeError(): Error & { code: "invalid_grid_size" } {
+  return Object.assign(new Error("invalid_grid_size"), { code: "invalid_grid_size" as const });
+}
+
+function isValidGridSize(grid: GridSize): boolean {
+  return Number.isInteger(grid.width) && Number.isInteger(grid.height) && grid.width > 0 && grid.height > 0;
+}
+
 export function buildPatternFromColors(colors: RgbColor[], grid: GridSize, colorCount: number): BeadPattern {
+  if (!isValidGridSize(grid) || colors.length !== grid.width * grid.height) {
+    throw invalidGridSizeError();
+  }
+
   const quantized = quantizeColors(colors, colorCount);
   const cells = quantized.slice(0, grid.width * grid.height).map((rgb, index) => {
     const color = nearestPaletteColor(rgb);
