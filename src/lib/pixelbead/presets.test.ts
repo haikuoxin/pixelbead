@@ -1,5 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { BEAD_BOARD_PRESETS, COLOR_MODES, getColorCount } from "./presets";
+import {
+  BACKGROUND_TREATMENTS,
+  BEAD_BOARD_PRESETS,
+  COLOR_MODES,
+  DEFAULT_CONVERSION_MODE,
+  getColorCount,
+  getSubjectColorCount,
+} from "./presets";
 
 describe("PixelBead presets", () => {
   it("uses bead-board sizes as default presets", () => {
@@ -14,5 +21,18 @@ describe("PixelBead presets", () => {
     expect(getColorCount("simple")).toBeLessThan(getColorCount("standard"));
     expect(getColorCount("standard")).toBeLessThan(getColorCount("detailed"));
     expect(COLOR_MODES.map((mode) => mode.id)).toEqual(["simple", "standard", "detailed"]);
+  });
+
+  it("uses subject-first conversion by default", () => {
+    expect(DEFAULT_CONVERSION_MODE).toBe("subject");
+  });
+
+  it("uses higher subject-first color counts than the original simple mode", () => {
+    expect(getSubjectColorCount("standard")).toBe(8);
+    expect(getSubjectColorCount("detailed")).toBe(12);
+  });
+
+  it("defaults to no background beads", () => {
+    expect(BACKGROUND_TREATMENTS[0]).toMatchObject({ id: "empty" });
   });
 });

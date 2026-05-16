@@ -1,4 +1,4 @@
-import type { BeadBoardPreset, ColorMode } from "./types";
+import type { BackgroundTreatment, BeadBoardPreset, ColorMode, ConversionMode } from "./types";
 
 export const BEAD_BOARD_PRESETS = [
   { id: "29", label: "29 x 29", width: 29, height: 29 },
@@ -18,6 +18,24 @@ export const COLOR_MODES = [
   { id: "detailed", defaultCount: COLOR_MODE_DEFAULT_COUNTS.detailed },
 ] as const satisfies readonly { id: ColorMode; defaultCount: number }[];
 
+export const DEFAULT_CONVERSION_MODE: ConversionMode = "subject";
+
+export const BACKGROUND_TREATMENTS = [
+  { id: "empty", labelKey: "empty" },
+  { id: "white", labelKey: "white" },
+  { id: "lightGray", labelKey: "lightGray" },
+] as const satisfies readonly { id: BackgroundTreatment; labelKey: BackgroundTreatment }[];
+
 export function getColorCount(mode: ColorMode): number {
   return COLOR_MODE_DEFAULT_COUNTS[mode];
+}
+
+export function getSubjectColorCount(mode: ColorMode): number {
+  const counts = {
+    simple: 6,
+    standard: 8,
+    detailed: 12,
+  } as const satisfies Record<ColorMode, number>;
+
+  return counts[mode];
 }

@@ -2,6 +2,14 @@ export type Language = "zh" | "en";
 
 export type ColorMode = "simple" | "standard" | "detailed";
 
+export type ConversionMode = "subject" | "whole";
+
+export type BackgroundTreatment = "empty" | "white" | "lightGray";
+
+export type PatternCellKind = "bead" | "empty" | "background";
+
+export type SubjectWarningCode = "subject_too_small" | "subject_fills_crop" | "subject_detail_low";
+
 export type WorkflowStep = "upload" | "crop" | "preview";
 
 export type PixelBeadErrorCode =
@@ -19,6 +27,16 @@ export type PixelBeadErrorCode =
 export interface GridSize {
   width: number;
   height: number;
+}
+
+export interface SubjectMask {
+  width: number;
+  height: number;
+  alpha: Uint8ClampedArray;
+}
+
+export interface SubjectWarning {
+  code: SubjectWarningCode;
 }
 
 export interface BeadBoardPreset extends GridSize {
@@ -39,6 +57,7 @@ export interface PaletteColor extends RgbColor {
 export interface PatternCell {
   x: number;
   y: number;
+  kind: PatternCellKind;
   color: PaletteColor;
 }
 
