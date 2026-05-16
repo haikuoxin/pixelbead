@@ -52,6 +52,24 @@ export function createSubjectSegmentationProvider(removeBackground: RemoveBackgr
 }
 
 export async function createImglySubjectSegmentationProvider(): Promise<SubjectSegmentationProvider> {
+  if (process.env.NEXT_PUBLIC_PIXELBEAD_E2E_SUBJECT_MASK === "checker") {
+    return {
+      async segment(_image, crop) {
+        const width = Math.max(1, Math.round(crop.width));
+        const height = Math.max(1, Math.round(crop.height));
+        const alpha = new Uint8ClampedArray(width * height);
+
+        for (let y = 0; y < height; y += 1) {
+          for (let x = 0; x < width; x += 1) {
+            alpha[y * width + x] = x < width / 2 ? 255 : 0;
+          }
+        }
+
+        return { width, height, alpha };
+      },
+    };
+  }
+
   try {
     const module = await import("@imgly/background-removal");
     return createSubjectSegmentationProvider(module.removeBackground);
