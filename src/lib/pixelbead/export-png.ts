@@ -3,11 +3,16 @@ import { codedError } from "./coded-error";
 
 const cellSize = 40;
 const statsWidth = 360;
+const statsTop = 76;
+const statsRowHeight = 30;
+const statsBottomPadding = 24;
 
-export function calculateExportSize(grid: GridSize, includeStats: boolean) {
+export function calculateExportSize(grid: GridSize, includeStats: boolean, statsCount = 0) {
+  const statsHeight = includeStats ? Math.max(120, statsTop + statsCount * statsRowHeight + statsBottomPadding) : 0;
+
   return {
     width: grid.width * cellSize + (includeStats ? statsWidth : 0),
-    height: Math.max(grid.height * cellSize, includeStats ? 120 + grid.height * 8 : 0),
+    height: Math.max(grid.height * cellSize, statsHeight),
   };
 }
 
@@ -19,7 +24,7 @@ function drawStats(context: CanvasRenderingContext2D, stats: ColorStat[], startX
   context.fillText("Color counts", startX + 24, 40);
 
   stats.forEach((stat, index) => {
-    const y = 76 + index * 30;
+    const y = statsTop + index * statsRowHeight;
     context.fillStyle = stat.color.hex;
     context.fillRect(startX + 24, y - 16, 18, 18);
     context.strokeStyle = "#111827";
@@ -30,7 +35,7 @@ function drawStats(context: CanvasRenderingContext2D, stats: ColorStat[], startX
 }
 
 export function renderPatternToCanvas(pattern: BeadPattern, includeStats: boolean): HTMLCanvasElement {
-  const size = calculateExportSize(pattern, includeStats);
+  const size = calculateExportSize(pattern, includeStats, pattern.stats.length);
   const canvas = document.createElement("canvas");
   canvas.width = size.width;
   canvas.height = size.height;
@@ -75,6 +80,16 @@ export function downloadPatternPng(pattern: BeadPattern, includeStats: boolean) 
   const canvas = renderPatternToCanvas(pattern, includeStats);
   const link = document.createElement("a");
   link.download = "pixelbead-pattern.png";
-  link.href = canvas.toDataURL("image/png");
-  link.click();
+  try {
+    link.href = canvas.toDataURL("image/png");
+  } catch {
+    throw codedError("export_failed");
+  }
+
+  document.body.appendChild(link);
+  try {
+    link.click();
+  } finally {
+    document.body.removeChild(link);
+  }
 }
