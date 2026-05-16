@@ -1,0 +1,209 @@
+"use client";
+
+import { useEffect, useMemo, useRef, useState } from "react";
+import ReactCrop, { centerCrop, makeAspectCrop, type Crop, type PixelCrop as ReactPixelCrop } from "react-image-crop";
+import type { getCopy } from "../../lib/pixelbead/copy";
+import { extractGridColors } from "../../lib/pixelbead/crop";
+import { buildPatternFromColors } from "../../lib/pixelbead/pattern";
+import { BEAD_BOARD_PRESETS } from "../../lib/pixelbead/presets";
+import type { BeadPattern, GridSize } from "../../lib/pixelbead/types";
+
+type PixelBeadCopy = ReturnType<typeof getCopy>;
+
+interface CropStepProps {
+  copy: PixelBeadCopy;
+  image: HTMLImageElement;
+  imageUrl: string;
+  grid: GridSize;
+  onGridChange: (grid: GridSize) => void;
+  onPatternReady: (pattern: BeadPattern) => void;
+  defaultColorCount: number;
+}
+
+function clampGridValue(value: number) {
+  if (!Number.isFinite(value)) {
+    return 1;
+  }
+  return Math.min(200, Math.max(1, Math.round(value)));
+}
+
+function createCenteredCrop(width: number, height: number, aspect: number): Crop {
+  return centerCrop(
+    makeAspectCrop(
+      {
+        unit: "%",
+        width: 86,
+      },
+      aspect,
+      width,
+      height,
+    ),
+    width,
+    height,
+  );
+}
+
+export function CropStep({
+  copy,
+  image,
+  imageUrl,
+  grid,
+  onGridChange,
+  onPatternReady,
+  defaultColorCount,
+}: CropStepProps) {
+  const renderedImageRef = useRef<HTMLImageElement | null>(null);
+  const [crop, setCrop] = useState<Crop>();
+  const [completedCrop, setCompletedCrop] = useState<ReactPixelCrop | null>(null);
+  const [colorCount, setColorCount] = useState(defaultColorCount);
+  const [error, setError] = useState("");
+  const isZh = copy.crop.title === "裁剪图片";
+  const strings = isZh
+    ? { size: "尺寸", width: "宽", height: "高", colors: "颜色数量", cropFailed: "裁剪失败，请调整裁剪范围。" }
+    : { size: "Size", width: "Width", height: "Height", colors: "Colors", cropFailed: "Crop failed. Adjust the crop area." };
+  const aspect = useMemo(() => grid.width / grid.height, [grid.height, grid.width]);
+
+  useEffect(() => {
+    const rendered = renderedImageRef.current;
+    const width = rendered?.width || image.naturalWidth;
+    const height = rendered?.height || image.naturalHeight;
+    const nextCrop = createCenteredCrop(width, height, aspect);
+    setCrop(nextCrop);
+    setCompletedCrop(null);
+  }, [aspect, image.naturalHeight, image.naturalWidth]);
+
+  function updateGrid(partial: Partial<GridSize>) {
+    onGridChange({
+      width: clampGridValue(partial.width ?? grid.width),
+      height: clampGridValue(partial.height ?? grid.height),
+    });
+  }
+
+  function handleConfirm() {
+    const rendered = renderedImageRef.current;
+    if (!rendered) {
+      return;
+    }
+
+    const activeCrop = completedCrop ?? {
+      x: 0,
+      y: 0,
+      width: rendered.width,
+      height: rendered.height,
+      unit: "px" as const,
+    };
+    const scaleX = image.naturalWidth / rendered.width;
+    const scaleY = image.naturalHeight / rendered.height;
+    const naturalCrop = {
+      x: activeCrop.x * scaleX,
+      y: activeCrop.y * scaleY,
+      width: activeCrop.width * scaleX,
+      height: activeCrop.height * scaleY,
+    };
+
+    try {
+      const colors = extractGridColors(image, naturalCrop, grid);
+      onPatternReady(buildPatternFromColors(colors, grid, colorCount));
+    } catch {
+      setError(strings.cropFailed);
+    }
+  }
+
+  return (
+    <section className="grid flex-1 gap-5 py-5 lg:grid-cols-[minmax(0,1fr)_320px]">
+      <div className="min-w-0 space-y-3">
+        <h2 className="text-xl font-semibold">{copy.crop.title}</h2>
+        <div className="overflow-hidden border border-zinc-200 bg-white">
+          <ReactCrop
+            crop={crop}
+            aspect={aspect}
+            minWidth={24}
+            minHeight={24}
+            onChange={(_, percentCrop) => setCrop(percentCrop)}
+            onComplete={(pixelCrop) => setCompletedCrop(pixelCrop)}
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              ref={renderedImageRef}
+              src={imageUrl}
+              alt=""
+              className="mx-auto h-auto max-h-[72vh] max-w-full object-contain"
+              onLoad={(event) => {
+                const target = event.currentTarget;
+                setCrop(createCenteredCrop(target.width, target.height, aspect));
+              }}
+            />
+          </ReactCrop>
+        </div>
+      </div>
+
+      <aside className="space-y-5 border-t border-zinc-200 pt-5 lg:border-l lg:border-t-0 lg:pl-5 lg:pt-0">
+        <div className="space-y-2">
+          <h3 className="text-sm font-semibold text-zinc-900">{strings.size}</h3>
+          <div className="grid grid-cols-3 gap-2">
+            {BEAD_BOARD_PRESETS.map((preset) => (
+              <button
+                key={preset.id}
+                type="button"
+                onClick={() => onGridChange({ width: preset.width, height: preset.height })}
+                className={`min-h-10 border px-2 text-sm font-medium ${
+                  grid.width === preset.width && grid.height === preset.height
+                    ? "border-zinc-950 bg-zinc-950 text-white"
+                    : "border-zinc-300 bg-white text-zinc-700 hover:border-zinc-700"
+                }`}
+              >
+                {preset.label}
+              </button>
+            ))}
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+            <label className="space-y-1 text-sm font-medium text-zinc-700">
+              {strings.width}
+              <input
+                type="number"
+                min={1}
+                max={200}
+                value={grid.width}
+                onChange={(event) => updateGrid({ width: Number(event.target.value) })}
+                className="min-h-10 w-full border border-zinc-300 bg-white px-3 text-zinc-950"
+              />
+            </label>
+            <label className="space-y-1 text-sm font-medium text-zinc-700">
+              {strings.height}
+              <input
+                type="number"
+                min={1}
+                max={200}
+                value={grid.height}
+                onChange={(event) => updateGrid({ height: Number(event.target.value) })}
+                className="min-h-10 w-full border border-zinc-300 bg-white px-3 text-zinc-950"
+              />
+            </label>
+          </div>
+        </div>
+
+        <label className="block space-y-2 text-sm font-medium text-zinc-700">
+          {strings.colors}
+          <input
+            type="range"
+            min={4}
+            max={48}
+            value={colorCount}
+            onChange={(event) => setColorCount(Number(event.target.value))}
+            className="w-full accent-zinc-950"
+          />
+          <span className="block text-sm text-zinc-600">{colorCount}</span>
+        </label>
+
+        {error && <p className="text-sm font-medium text-red-700">{error}</p>}
+        <button
+          type="button"
+          onClick={handleConfirm}
+          className="min-h-11 w-full bg-zinc-950 px-4 text-sm font-semibold text-white hover:bg-zinc-800"
+        >
+          {copy.crop.confirm}
+        </button>
+      </aside>
+    </section>
+  );
+}
