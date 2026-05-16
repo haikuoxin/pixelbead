@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { hexToRgb, rgbToHex, nearestPaletteColor, GENERAL_PALETTE } from "./palette";
+import { colorDistance, hexToRgb, rgbToHex, nearestPaletteColor, GENERAL_PALETTE } from "./palette";
 
 describe("palette helpers", () => {
   it("converts rgb and hex consistently", () => {
@@ -10,5 +10,9 @@ describe("palette helpers", () => {
   it("finds nearest palette color", () => {
     expect(GENERAL_PALETTE.length).toBeGreaterThanOrEqual(36);
     expect(nearestPaletteColor({ r: 250, g: 250, b: 250 }).hex).toBe("#ffffff");
+  });
+
+  it("calculates squared color distance", () => {
+    expect(colorDistance({ r: 10, g: 20, b: 30 }, { r: 13, g: 24, b: 42 })).toBe(169);
   });
 });
