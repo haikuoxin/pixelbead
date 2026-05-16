@@ -8,6 +8,7 @@ import { buildPatternFromColors } from "../../lib/pixelbead/pattern";
 import { BEAD_BOARD_PRESETS } from "../../lib/pixelbead/presets";
 import type { BeadPattern, GridSize } from "../../lib/pixelbead/types";
 import { getNaturalPixelCrop } from "./crop-coordinate";
+import { createCroppedPreviewUrl } from "./crop-preview";
 
 type PixelBeadCopy = ReturnType<typeof getCopy>;
 
@@ -17,7 +18,7 @@ interface CropStepProps {
   imageUrl: string;
   grid: GridSize;
   onGridChange: (grid: GridSize) => void;
-  onPatternReady: (pattern: BeadPattern) => void;
+  onPatternReady: (pattern: BeadPattern, croppedPreviewUrl: string) => void;
   defaultColorCount: number;
 }
 
@@ -80,7 +81,7 @@ export function CropStep({
     });
   }
 
-  function handleConfirm() {
+  async function handleConfirm() {
     const rendered = renderedImageRef.current;
     if (!rendered) {
       return;
@@ -95,7 +96,9 @@ export function CropStep({
 
     try {
       const colors = extractGridColors(image, naturalCrop, grid);
-      onPatternReady(buildPatternFromColors(colors, grid, colorCount));
+      const pattern = buildPatternFromColors(colors, grid, colorCount);
+      const croppedPreviewUrl = await createCroppedPreviewUrl(image, naturalCrop);
+      onPatternReady(pattern, croppedPreviewUrl);
     } catch {
       setError(strings.cropFailed);
     }
@@ -190,7 +193,7 @@ export function CropStep({
         {error && <p className="text-sm font-medium text-red-700">{error}</p>}
         <button
           type="button"
-          onClick={handleConfirm}
+          onClick={() => void handleConfirm()}
           className="min-h-11 w-full bg-zinc-950 px-4 text-sm font-semibold text-white hover:bg-zinc-800"
         >
           {copy.crop.confirm}

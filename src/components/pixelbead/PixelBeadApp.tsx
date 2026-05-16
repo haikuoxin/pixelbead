@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { BeadPattern, GridSize, Language, WorkflowStep } from "../../lib/pixelbead/types";
 import { getCopy } from "../../lib/pixelbead/copy";
 import { BEAD_BOARD_PRESETS, getColorCount } from "../../lib/pixelbead/presets";
@@ -14,9 +14,27 @@ export function PixelBeadApp() {
   const [step, setStep] = useState<WorkflowStep>("upload");
   const [image, setImage] = useState<HTMLImageElement | null>(null);
   const [imageUrl, setImageUrl] = useState("");
+  const croppedPreviewUrlRef = useRef("");
+  const [croppedPreviewUrl, setCroppedPreviewUrl] = useState("");
   const [grid, setGrid] = useState<GridSize>(BEAD_BOARD_PRESETS[0]);
   const [pattern, setPattern] = useState<BeadPattern | null>(null);
   const copy = useMemo(() => getCopy(language), [language]);
+
+  useEffect(() => {
+    return () => {
+      if (croppedPreviewUrlRef.current) {
+        URL.revokeObjectURL(croppedPreviewUrlRef.current);
+      }
+    };
+  }, []);
+
+  function replaceCroppedPreviewUrl(nextUrl: string) {
+    if (croppedPreviewUrlRef.current) {
+      URL.revokeObjectURL(croppedPreviewUrlRef.current);
+    }
+    croppedPreviewUrlRef.current = nextUrl;
+    setCroppedPreviewUrl(nextUrl);
+  }
 
   return (
     <main className="min-h-screen bg-stone-50 text-zinc-950">
@@ -43,15 +61,16 @@ export function PixelBeadApp() {
             imageUrl={imageUrl}
             grid={grid}
             onGridChange={setGrid}
-            onPatternReady={(nextPattern) => {
+            onPatternReady={(nextPattern, nextCroppedPreviewUrl) => {
               setPattern(nextPattern);
+              replaceCroppedPreviewUrl(nextCroppedPreviewUrl);
               setStep("preview");
             }}
             defaultColorCount={getColorCount("standard")}
           />
         )}
-        {step === "preview" && pattern && (
-          <PreviewEditor copy={copy} pattern={pattern} originalUrl={imageUrl} grid={grid} />
+        {step === "preview" && pattern && croppedPreviewUrl && (
+          <PreviewEditor copy={copy} pattern={pattern} originalUrl={croppedPreviewUrl} grid={grid} />
         )}
       </div>
     </main>
