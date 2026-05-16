@@ -44,12 +44,11 @@ function cropToRenderedPixels(crop: Crop | undefined, renderedSize: Size): React
 }
 
 export function getNaturalPixelCrop({
-  completedCrop,
   currentCrop,
   renderedSize,
   naturalSize,
 }: NaturalCropOptions): PixelCrop {
-  const activeCrop = completedCrop ?? cropToRenderedPixels(currentCrop, renderedSize);
+  const activeCrop = cropToRenderedPixels(currentCrop, renderedSize);
   const scaleX = naturalSize.width / renderedSize.width;
   const scaleY = naturalSize.height / renderedSize.height;
 

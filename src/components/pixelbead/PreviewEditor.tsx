@@ -19,7 +19,20 @@ interface PreviewEditorProps {
 export function PreviewEditor({ copy, pattern, originalUrl, grid }: PreviewEditorProps) {
   const [view, setView] = useState<"result" | "original">("result");
   const [includeStats, setIncludeStats] = useState(true);
-  const includeStatsLabel = copy.preview.title === "预览点阵图" ? "色号统计" : "Color counts";
+  const isZh = copy.preview.title === "预览点阵图";
+  const includeStatsLabel = isZh ? "色号统计" : "Color counts";
+  const originalAlt = isZh ? "已裁剪原图预览" : "Cropped original preview";
+  const exportFailedMessage = isZh ? "导出失败，请重试。" : "Export failed. Please try again.";
+  const [exportError, setExportError] = useState("");
+
+  function handleExport() {
+    setExportError("");
+    try {
+      downloadPatternPng(pattern, includeStats);
+    } catch {
+      setExportError(exportFailedMessage);
+    }
+  }
 
   return (
     <section className="flex flex-1 flex-col gap-5 py-5">
@@ -64,7 +77,7 @@ export function PreviewEditor({ copy, pattern, originalUrl, grid }: PreviewEdito
           </label>
           <button
             type="button"
-            onClick={() => downloadPatternPng(pattern, includeStats)}
+            onClick={handleExport}
             className="min-h-10 bg-zinc-950 px-4 text-sm font-semibold text-white hover:bg-zinc-800"
           >
             {copy.preview.export}
@@ -75,12 +88,13 @@ export function PreviewEditor({ copy, pattern, originalUrl, grid }: PreviewEdito
       {view === "original" ? (
         <div className="overflow-auto border border-zinc-200 bg-white">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={originalUrl} alt="" className="block max-h-[70vh] w-full object-contain" />
+          <img src={originalUrl} alt={originalAlt} className="block max-h-[70vh] w-full object-contain" />
         </div>
       ) : (
         <PatternCanvas pattern={pattern} />
       )}
 
+      {exportError && <p className="text-sm font-medium text-red-700">{exportError}</p>}
       <ColorStats stats={pattern.stats} />
     </section>
   );

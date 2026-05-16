@@ -8,13 +8,15 @@ import { UploadStep } from "./UploadStep";
 import { CropStep } from "./CropStep";
 import { PreviewEditor } from "./PreviewEditor";
 import { LanguageToggle } from "./LanguageToggle";
+import { replaceRevokeCallback, revokeCurrentCallback } from "./object-url-lifecycle";
 
 export function PixelBeadApp() {
   const [language, setLanguage] = useState<Language>("zh");
   const [step, setStep] = useState<WorkflowStep>("upload");
   const [image, setImage] = useState<HTMLImageElement | null>(null);
   const [imageUrl, setImageUrl] = useState("");
-  const croppedPreviewUrlRef = useRef("");
+  const uploadRevokeRef = useRef<(() => void) | null>(null);
+  const croppedPreviewRevokeRef = useRef<(() => void) | null>(null);
   const [croppedPreviewUrl, setCroppedPreviewUrl] = useState("");
   const [grid, setGrid] = useState<GridSize>(BEAD_BOARD_PRESETS[0]);
   const [pattern, setPattern] = useState<BeadPattern | null>(null);
@@ -22,17 +24,13 @@ export function PixelBeadApp() {
 
   useEffect(() => {
     return () => {
-      if (croppedPreviewUrlRef.current) {
-        URL.revokeObjectURL(croppedPreviewUrlRef.current);
-      }
+      revokeCurrentCallback(uploadRevokeRef);
+      revokeCurrentCallback(croppedPreviewRevokeRef);
     };
   }, []);
 
   function replaceCroppedPreviewUrl(nextUrl: string) {
-    if (croppedPreviewUrlRef.current) {
-      URL.revokeObjectURL(croppedPreviewUrlRef.current);
-    }
-    croppedPreviewUrlRef.current = nextUrl;
+    replaceRevokeCallback(croppedPreviewRevokeRef, () => URL.revokeObjectURL(nextUrl));
     setCroppedPreviewUrl(nextUrl);
   }
 
@@ -48,6 +46,10 @@ export function PixelBeadApp() {
             copy={copy}
             language={language}
             onImageLoaded={(loaded) => {
+              replaceRevokeCallback(uploadRevokeRef, loaded.revoke);
+              revokeCurrentCallback(croppedPreviewRevokeRef);
+              setCroppedPreviewUrl("");
+              setPattern(null);
               setImage(loaded.element);
               setImageUrl(loaded.url);
               setStep("crop");
