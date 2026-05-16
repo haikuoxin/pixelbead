@@ -36,7 +36,32 @@ Build an image-to-pattern workflow for pixel bead creators:
 
 ## Development Notes
 
-This repository is newly initialized. The technical stack is not fixed yet. Keep the first implementation focused on a fast local prototype before introducing accounts, cloud storage, or paid APIs.
+The first implementation is a Next.js web app with browser-local image processing. Keep the prototype focused on local upload, crop, conversion, preview, and PNG export before introducing accounts, cloud storage, or paid APIs.
+
+## Development
+
+```bash
+npm install
+npm run dev
+```
+
+Open `http://localhost:3000`.
+
+## Verification
+
+Install the Playwright browser once before running end-to-end tests:
+
+```bash
+npm run e2e:install
+```
+
+Run the standard checks:
+
+```bash
+npm run test
+npm run build
+npm run e2e
+```
 
 ## Repository Status
 
