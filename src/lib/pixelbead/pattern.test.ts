@@ -27,6 +27,19 @@ describe("buildPatternFromColors", () => {
     expect(pattern.stats).toHaveLength(2);
   });
 
+  it("marks whole-image cells as bead cells", () => {
+    const pattern = buildPatternFromColors(
+      [
+        { r: 0, g: 0, b: 0 },
+        { r: 255, g: 255, b: 255 },
+      ],
+      { width: 2, height: 1 },
+      2,
+    );
+
+    expect(pattern.cells.every((cell) => cell.kind === "bead")).toBe(true);
+  });
+
   it("assigns x and y coordinates in row-major order", () => {
     const pattern = buildPatternFromColors(
       [

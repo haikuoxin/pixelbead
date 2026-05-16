@@ -49,7 +49,7 @@ export function renderPatternToCanvas(pattern: BeadPattern, includeStats: boolea
   context.fillRect(0, 0, canvas.width, canvas.height);
 
   for (const cell of pattern.cells) {
-    context.fillStyle = cell.color.hex;
+    context.fillStyle = cell.kind === "empty" ? "#ffffff" : cell.color.hex;
     context.fillRect(cell.x * cellSize, cell.y * cellSize, cellSize, cellSize);
   }
 

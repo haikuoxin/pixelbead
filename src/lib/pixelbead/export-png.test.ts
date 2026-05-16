@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { calculateExportSize, downloadPatternPng } from "./export-png";
+import { calculateExportSize, downloadPatternPng, renderPatternToCanvas } from "./export-png";
 import type { BeadPattern, ColorStat } from "./types";
 
 function pattern(stats: ColorStat[] = []): BeadPattern {
@@ -10,6 +10,7 @@ function pattern(stats: ColorStat[] = []): BeadPattern {
       {
         x: 0,
         y: 0,
+        kind: "bead",
         color: { r: 255, g: 0, b: 0, hex: "#ff0000" },
       },
     ],
@@ -94,5 +95,17 @@ describe("downloadPatternPng", () => {
     mockExportCanvas(toDataURL);
 
     expect(() => downloadPatternPng(pattern(), false)).toThrow(expect.objectContaining({ code: "export_failed" }));
+  });
+
+  it("does not render empty cells as colored beads", () => {
+    mockExportCanvas();
+    const emptyPattern: BeadPattern = {
+      width: 1,
+      height: 1,
+      cells: [{ x: 0, y: 0, kind: "empty", color: { r: 0, g: 0, b: 0, hex: "#000000" } }],
+      stats: [],
+    };
+
+    expect(() => renderPatternToCanvas(emptyPattern, false)).not.toThrow();
   });
 });

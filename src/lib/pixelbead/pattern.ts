@@ -31,11 +31,12 @@ export function buildPatternFromColors(colors: RgbColor[], grid: GridSize, color
   const cells = quantized.slice(0, grid.width * grid.height).map((rgb, index) => {
     const color = nearestPaletteColor(rgb, options.palette);
 
-    return { x: index % grid.width, y: Math.floor(index / grid.width), color };
+    return { x: index % grid.width, y: Math.floor(index / grid.width), color, kind: "bead" as const };
   });
   const counts = new Map<string, { color: BeadPattern["cells"][number]["color"]; count: number }>();
 
   for (const cell of cells) {
+    if (cell.kind !== "bead") continue;
     const current = counts.get(cell.color.hex) ?? { color: cell.color, count: 0 };
     current.count += 1;
     counts.set(cell.color.hex, current);
