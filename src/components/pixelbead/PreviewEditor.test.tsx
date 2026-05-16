@@ -23,7 +23,7 @@ const pattern: BeadPattern = {
 
 describe("PreviewEditor", () => {
   it("shows an inline error when PNG export fails", async () => {
-    render(<PreviewEditor copy={getCopy("zh")} pattern={pattern} originalUrl="blob:crop" grid={{ width: 1, height: 1 }} />);
+    render(<PreviewEditor copy={getCopy("zh")} language="zh" pattern={pattern} originalUrl="blob:crop" grid={{ width: 1, height: 1 }} />);
 
     fireEvent.click(screen.getByRole("button", { name: "导出 PNG" }));
 

@@ -39,7 +39,7 @@ export function PixelBeadApp() {
       <div className="mx-auto flex min-h-screen w-full max-w-6xl flex-col px-4 py-4 sm:px-6 lg:px-8">
         <header className="flex items-center justify-between gap-4 border-b border-zinc-200 pb-4">
           <h1 className="text-2xl font-semibold tracking-normal">{copy.appTitle}</h1>
-          <LanguageToggle language={language} onChange={setLanguage} />
+          <LanguageToggle language={language} onChange={setLanguage} copy={copy} />
         </header>
         {step === "upload" && (
           <UploadStep
@@ -61,6 +61,7 @@ export function PixelBeadApp() {
             copy={copy}
             image={image}
             imageUrl={imageUrl}
+            language={language}
             grid={grid}
             onGridChange={setGrid}
             onPatternReady={(nextPattern, nextCroppedPreviewUrl) => {
@@ -72,7 +73,7 @@ export function PixelBeadApp() {
           />
         )}
         {step === "preview" && pattern && croppedPreviewUrl && (
-          <PreviewEditor copy={copy} pattern={pattern} originalUrl={croppedPreviewUrl} grid={grid} />
+          <PreviewEditor copy={copy} language={language} pattern={pattern} originalUrl={croppedPreviewUrl} grid={grid} />
         )}
       </div>
     </main>

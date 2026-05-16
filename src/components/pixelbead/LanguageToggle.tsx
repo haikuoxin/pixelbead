@@ -1,15 +1,19 @@
 "use client";
 
 import type { Language } from "../../lib/pixelbead/types";
+import type { getCopy } from "../../lib/pixelbead/copy";
+
+type PixelBeadCopy = ReturnType<typeof getCopy>;
 
 interface LanguageToggleProps {
   language: Language;
   onChange: (language: Language) => void;
+  copy: PixelBeadCopy;
 }
 
-export function LanguageToggle({ language, onChange }: LanguageToggleProps) {
+export function LanguageToggle({ language, onChange, copy }: LanguageToggleProps) {
   return (
-    <div className="inline-flex rounded-md border border-zinc-300 bg-white p-1" aria-label="Language">
+    <div className="inline-flex rounded-md border border-zinc-300 bg-white p-1" aria-label={copy.language.label}>
       {(["zh", "en"] as const).map((option) => (
         <button
           key={option}
@@ -20,7 +24,7 @@ export function LanguageToggle({ language, onChange }: LanguageToggleProps) {
           }`}
           aria-pressed={language === option}
         >
-          {option === "zh" ? "中文" : "EN"}
+          {copy.language[option]}
         </button>
       ))}
     </div>

@@ -45,3 +45,16 @@ const messages: Record<Language, Record<PixelBeadErrorCode, string>> = {
 export function getErrorMessage(language: Language, code: PixelBeadErrorCode): string {
   return messages[language][code];
 }
+
+export function getErrorCode(error: unknown, fallback: PixelBeadErrorCode): PixelBeadErrorCode {
+  if (
+    typeof error === "object" &&
+    error !== null &&
+    "code" in error &&
+    typeof error.code === "string" &&
+    PIXEL_BEAD_ERROR_CODES.includes(error.code as PixelBeadErrorCode)
+  ) {
+    return error.code as PixelBeadErrorCode;
+  }
+  return fallback;
+}

@@ -6,9 +6,10 @@ import type { BeadPattern } from "../../lib/pixelbead/types";
 
 interface PatternCanvasProps {
   pattern: BeadPattern;
+  label?: string;
 }
 
-export function PatternCanvas({ pattern }: PatternCanvasProps) {
+export function PatternCanvas({ pattern, label = "PixelBead pattern preview" }: PatternCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   useEffect(() => {
@@ -26,7 +27,7 @@ export function PatternCanvas({ pattern }: PatternCanvasProps) {
 
   return (
     <div className="overflow-auto border border-zinc-200 bg-white">
-      <canvas ref={canvasRef} className="block h-auto max-h-[70vh] max-w-full" aria-label="PixelBead pattern preview" />
+      <canvas ref={canvasRef} className="block h-auto max-h-[70vh] max-w-full" aria-label={label} />
     </div>
   );
 }

@@ -2,8 +2,9 @@
 
 import { useState } from "react";
 import type { getCopy } from "../../lib/pixelbead/copy";
+import { getErrorCode, getErrorMessage } from "../../lib/pixelbead/errors";
 import { downloadPatternPng } from "../../lib/pixelbead/export-png";
-import type { BeadPattern, GridSize } from "../../lib/pixelbead/types";
+import type { BeadPattern, GridSize, Language } from "../../lib/pixelbead/types";
 import { ColorStats } from "./ColorStats";
 import { PatternCanvas } from "./PatternCanvas";
 
@@ -11,26 +12,23 @@ type PixelBeadCopy = ReturnType<typeof getCopy>;
 
 interface PreviewEditorProps {
   copy: PixelBeadCopy;
+  language: Language;
   pattern: BeadPattern;
   originalUrl: string;
   grid: GridSize;
 }
 
-export function PreviewEditor({ copy, pattern, originalUrl, grid }: PreviewEditorProps) {
+export function PreviewEditor({ copy, language, pattern, originalUrl, grid }: PreviewEditorProps) {
   const [view, setView] = useState<"result" | "original">("result");
   const [includeStats, setIncludeStats] = useState(true);
-  const isZh = copy.preview.title === "预览点阵图";
-  const includeStatsLabel = isZh ? "色号统计" : "Color counts";
-  const originalAlt = isZh ? "已裁剪原图预览" : "Cropped original preview";
-  const exportFailedMessage = isZh ? "导出失败，请重试。" : "Export failed. Please try again.";
   const [exportError, setExportError] = useState("");
 
   function handleExport() {
     setExportError("");
     try {
       downloadPatternPng(pattern, includeStats);
-    } catch {
-      setExportError(exportFailedMessage);
+    } catch (exportFailure) {
+      setExportError(getErrorMessage(language, getErrorCode(exportFailure, "export_failed")));
     }
   }
 
@@ -73,7 +71,7 @@ export function PreviewEditor({ copy, pattern, originalUrl, grid }: PreviewEdito
               onChange={(event) => setIncludeStats(event.target.checked)}
               className="accent-zinc-950"
             />
-            {includeStatsLabel}
+            {copy.preview.includeStats}
           </label>
           <button
             type="button"
@@ -88,10 +86,10 @@ export function PreviewEditor({ copy, pattern, originalUrl, grid }: PreviewEdito
       {view === "original" ? (
         <div className="overflow-auto border border-zinc-200 bg-white">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={originalUrl} alt={originalAlt} className="block max-h-[70vh] w-full object-contain" />
+          <img src={originalUrl} alt={copy.preview.originalAlt} className="block max-h-[70vh] w-full object-contain" />
         </div>
       ) : (
-        <PatternCanvas pattern={pattern} />
+        <PatternCanvas pattern={pattern} label={copy.preview.patternPreview} />
       )}
 
       {exportError && <p className="text-sm font-medium text-red-700">{exportError}</p>}

@@ -4,9 +4,10 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import ReactCrop, { centerCrop, makeAspectCrop, type Crop, type PixelCrop as ReactPixelCrop } from "react-image-crop";
 import type { getCopy } from "../../lib/pixelbead/copy";
 import { extractGridColors } from "../../lib/pixelbead/crop";
+import { getErrorCode, getErrorMessage } from "../../lib/pixelbead/errors";
 import { buildPatternFromColors } from "../../lib/pixelbead/pattern";
 import { BEAD_BOARD_PRESETS } from "../../lib/pixelbead/presets";
-import type { BeadPattern, GridSize } from "../../lib/pixelbead/types";
+import type { BeadPattern, GridSize, Language } from "../../lib/pixelbead/types";
 import { getNaturalPixelCrop } from "./crop-coordinate";
 import { createCroppedPreviewUrl } from "./crop-preview";
 
@@ -16,6 +17,7 @@ interface CropStepProps {
   copy: PixelBeadCopy;
   image: HTMLImageElement;
   imageUrl: string;
+  language: Language;
   grid: GridSize;
   onGridChange: (grid: GridSize) => void;
   onPatternReady: (pattern: BeadPattern, croppedPreviewUrl: string) => void;
@@ -49,6 +51,7 @@ export function CropStep({
   copy,
   image,
   imageUrl,
+  language,
   grid,
   onGridChange,
   onPatternReady,
@@ -59,10 +62,6 @@ export function CropStep({
   const [completedCrop, setCompletedCrop] = useState<ReactPixelCrop | null>(null);
   const [colorCount, setColorCount] = useState(defaultColorCount);
   const [error, setError] = useState("");
-  const isZh = copy.crop.title === "裁剪图片";
-  const strings = isZh
-    ? { size: "尺寸", width: "宽", height: "高", colors: "颜色数量", cropFailed: "裁剪失败，请调整裁剪范围。" }
-    : { size: "Size", width: "Width", height: "Height", colors: "Colors", cropFailed: "Crop failed. Adjust the crop area." };
   const aspect = useMemo(() => grid.width / grid.height, [grid.height, grid.width]);
 
   useEffect(() => {
@@ -99,8 +98,8 @@ export function CropStep({
       const pattern = buildPatternFromColors(colors, grid, colorCount);
       const croppedPreviewUrl = await createCroppedPreviewUrl(image, naturalCrop);
       onPatternReady(pattern, croppedPreviewUrl);
-    } catch {
-      setError(strings.cropFailed);
+    } catch (cropError) {
+      setError(getErrorMessage(language, getErrorCode(cropError, "invalid_crop")));
     }
   }
 
@@ -134,7 +133,7 @@ export function CropStep({
 
       <aside className="space-y-5 border-t border-zinc-200 pt-5 lg:border-l lg:border-t-0 lg:pl-5 lg:pt-0">
         <div className="space-y-2">
-          <h3 className="text-sm font-semibold text-zinc-900">{strings.size}</h3>
+          <h3 className="text-sm font-semibold text-zinc-900">{copy.crop.size}</h3>
           <div className="grid grid-cols-3 gap-2">
             {BEAD_BOARD_PRESETS.map((preset) => (
               <button
@@ -151,9 +150,13 @@ export function CropStep({
               </button>
             ))}
           </div>
-          <div className="grid grid-cols-2 gap-2">
+        </div>
+
+        <details className="space-y-3 border border-zinc-200 bg-white p-3">
+          <summary className="cursor-pointer text-sm font-semibold text-zinc-900">{copy.crop.advanced}</summary>
+          <div className="grid grid-cols-2 gap-2 pt-3">
             <label className="space-y-1 text-sm font-medium text-zinc-700">
-              {strings.width}
+              {copy.crop.width}
               <input
                 type="number"
                 min={1}
@@ -164,7 +167,7 @@ export function CropStep({
               />
             </label>
             <label className="space-y-1 text-sm font-medium text-zinc-700">
-              {strings.height}
+              {copy.crop.height}
               <input
                 type="number"
                 min={1}
@@ -175,20 +178,19 @@ export function CropStep({
               />
             </label>
           </div>
-        </div>
-
-        <label className="block space-y-2 text-sm font-medium text-zinc-700">
-          {strings.colors}
-          <input
-            type="range"
-            min={4}
-            max={48}
-            value={colorCount}
-            onChange={(event) => setColorCount(Number(event.target.value))}
-            className="w-full accent-zinc-950"
-          />
-          <span className="block text-sm text-zinc-600">{colorCount}</span>
-        </label>
+          <label className="block space-y-2 pt-3 text-sm font-medium text-zinc-700">
+            {copy.crop.colors}
+            <input
+              type="range"
+              min={4}
+              max={48}
+              value={colorCount}
+              onChange={(event) => setColorCount(Number(event.target.value))}
+              className="w-full accent-zinc-950"
+            />
+            <span className="block text-sm text-zinc-600">{colorCount}</span>
+          </label>
+        </details>
 
         {error && <p className="text-sm font-medium text-red-700">{error}</p>}
         <button
