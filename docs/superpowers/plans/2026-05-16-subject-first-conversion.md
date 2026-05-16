@@ -1,6 +1,6 @@
 # Subject-First Conversion Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [x]`) syntax for tracking.
 
 **Goal:** Make subject-first conversion the default PixelBead path so busy photo backgrounds stop polluting bead patterns while whole-image conversion remains available as fallback.
 
@@ -37,7 +37,7 @@
 - Modify: `src/lib/pixelbead/presets.ts`
 - Test: `src/lib/pixelbead/presets.test.ts`
 
-- [ ] **Step 1: Write failing preset/type behavior tests**
+- [x] **Step 1: Write failing preset/type behavior tests**
 
 Append to `src/lib/pixelbead/presets.test.ts`:
 
@@ -60,7 +60,7 @@ describe("subject-first presets", () => {
 });
 ```
 
-- [ ] **Step 2: Run the targeted test and verify failure**
+- [x] **Step 2: Run the targeted test and verify failure**
 
 Run:
 
@@ -70,7 +70,7 @@ npm run test -- src/lib/pixelbead/presets.test.ts
 
 Expected: FAIL because `getSubjectColorCount`, `DEFAULT_CONVERSION_MODE`, and `BACKGROUND_TREATMENTS` do not exist.
 
-- [ ] **Step 3: Add domain types**
+- [x] **Step 3: Add domain types**
 
 Modify `src/lib/pixelbead/types.ts` to add:
 
@@ -102,7 +102,7 @@ kind: PatternCellKind;
 
 The current `PatternCell` interface already contains `x`, `y`, and `color`; add `kind` as a required property and make the existing whole-image builder emit `kind: "bead"` in Task 3.
 
-- [ ] **Step 4: Add presets**
+- [x] **Step 4: Add presets**
 
 Modify `src/lib/pixelbead/presets.ts`:
 
@@ -130,7 +130,7 @@ export function getSubjectColorCount(mode: ColorMode): number {
 
 Keep the existing `getColorCount` unchanged for whole-image mode.
 
-- [ ] **Step 5: Run tests and commit**
+- [x] **Step 5: Run tests and commit**
 
 Run:
 
@@ -154,7 +154,7 @@ git commit -m "feat: add subject-first domain presets"
 - Create: `src/lib/pixelbead/subject-mask.ts`
 - Test: `src/lib/pixelbead/subject-mask.test.ts`
 
-- [ ] **Step 1: Write failing subject mask tests**
+- [x] **Step 1: Write failing subject mask tests**
 
 Create `src/lib/pixelbead/subject-mask.test.ts`:
 
@@ -210,7 +210,7 @@ describe("subject mask helpers", () => {
 });
 ```
 
-- [ ] **Step 2: Run the targeted test and verify failure**
+- [x] **Step 2: Run the targeted test and verify failure**
 
 Run:
 
@@ -220,7 +220,7 @@ npm run test -- src/lib/pixelbead/subject-mask.test.ts
 
 Expected: FAIL because `subject-mask.ts` does not exist.
 
-- [ ] **Step 3: Implement subject mask helpers**
+- [x] **Step 3: Implement subject mask helpers**
 
 Create `src/lib/pixelbead/subject-mask.ts`:
 
@@ -301,7 +301,7 @@ export function getSubjectWarnings(foreground: boolean[], grid: GridSize): Subje
 }
 ```
 
-- [ ] **Step 4: Run tests and commit**
+- [x] **Step 4: Run tests and commit**
 
 Run:
 
@@ -327,7 +327,7 @@ git commit -m "feat: add subject mask helpers"
 - Test: `src/lib/pixelbead/pattern.test.ts`
 - Test: `src/lib/pixelbead/export-png.test.ts`
 
-- [ ] **Step 1: Write failing tests for cell kinds**
+- [x] **Step 1: Write failing tests for cell kinds**
 
 Append to `src/lib/pixelbead/pattern.test.ts`:
 
@@ -361,7 +361,7 @@ it("does not render empty cells as colored beads", async () => {
 });
 ```
 
-- [ ] **Step 2: Run targeted tests and verify failure**
+- [x] **Step 2: Run targeted tests and verify failure**
 
 Run:
 
@@ -371,7 +371,7 @@ npm run test -- src/lib/pixelbead/pattern.test.ts src/lib/pixelbead/export-png.t
 
 Expected: FAIL until cell kinds are emitted and export handles empty cells.
 
-- [ ] **Step 3: Emit bead kind in whole-image conversion**
+- [x] **Step 3: Emit bead kind in whole-image conversion**
 
 Modify the cell creation in `src/lib/pixelbead/pattern.ts`:
 
@@ -390,7 +390,7 @@ for (const cell of cells) {
 }
 ```
 
-- [ ] **Step 4: Render empty/background cells in export**
+- [x] **Step 4: Render empty/background cells in export**
 
 Modify the cell rendering loop in `src/lib/pixelbead/export-png.ts` so it uses:
 
@@ -404,7 +404,7 @@ if (cell.kind === "empty") {
 
 Keep grid line rendering unchanged. This first pass renders empty cells as white paper space in PNG.
 
-- [ ] **Step 5: Run tests and commit**
+- [x] **Step 5: Run tests and commit**
 
 Run:
 
@@ -428,7 +428,7 @@ git commit -m "feat: support pattern cell kinds"
 - Create: `src/lib/pixelbead/masked-pattern.ts`
 - Test: `src/lib/pixelbead/masked-pattern.test.ts`
 
-- [ ] **Step 1: Write failing masked pattern tests**
+- [x] **Step 1: Write failing masked pattern tests**
 
 Create `src/lib/pixelbead/masked-pattern.test.ts`:
 
@@ -472,7 +472,7 @@ describe("buildMaskedPatternFromColors", () => {
 });
 ```
 
-- [ ] **Step 2: Run targeted test and verify failure**
+- [x] **Step 2: Run targeted test and verify failure**
 
 Run:
 
@@ -482,7 +482,7 @@ npm run test -- src/lib/pixelbead/masked-pattern.test.ts
 
 Expected: FAIL because `masked-pattern.ts` does not exist.
 
-- [ ] **Step 3: Implement masked pattern assembly**
+- [x] **Step 3: Implement masked pattern assembly**
 
 Create `src/lib/pixelbead/masked-pattern.ts`:
 
@@ -556,7 +556,7 @@ export function buildMaskedPatternFromColors(
 }
 ```
 
-- [ ] **Step 4: Run tests and commit**
+- [x] **Step 4: Run tests and commit**
 
 Run:
 
@@ -582,7 +582,7 @@ git commit -m "feat: build masked subject patterns"
 - Create: `src/lib/pixelbead/subject-segmentation.ts`
 - Test: `src/lib/pixelbead/subject-segmentation.test.ts`
 
-- [ ] **Step 1: Install browser-local background removal dependency**
+- [x] **Step 1: Install browser-local background removal dependency**
 
 Run:
 
@@ -592,7 +592,7 @@ npm install @imgly/background-removal
 
 Expected: `package.json` includes `@imgly/background-removal`.
 
-- [ ] **Step 2: Write provider tests with a mock implementation**
+- [x] **Step 2: Write provider tests with a mock implementation**
 
 Create `src/lib/pixelbead/subject-segmentation.test.ts`:
 
@@ -629,7 +629,7 @@ describe("subject segmentation provider", () => {
 
 This test intentionally verifies error wrapping first. Browser image decoding of returned model blobs is covered by integration/E2E because jsdom cannot reliably decode PNG blobs.
 
-- [ ] **Step 3: Implement provider boundary**
+- [x] **Step 3: Implement provider boundary**
 
 Create `src/lib/pixelbead/subject-segmentation.ts`:
 
@@ -697,7 +697,7 @@ export async function createImglySubjectSegmentationProvider(): Promise<SubjectS
 }
 ```
 
-- [ ] **Step 4: Add error codes**
+- [x] **Step 4: Add error codes**
 
 Modify `src/lib/pixelbead/types.ts` `PixelBeadErrorCode` union:
 
@@ -709,7 +709,7 @@ Modify `src/lib/pixelbead/types.ts` `PixelBeadErrorCode` union:
 
 Modify `src/lib/pixelbead/errors.ts` with bilingual messages for the three new codes.
 
-- [ ] **Step 5: Run tests and commit**
+- [x] **Step 5: Run tests and commit**
 
 Run:
 
@@ -735,7 +735,7 @@ git commit -m "feat: add subject segmentation provider"
 - Modify: `src/components/pixelbead/CropStep.tsx`
 - Test: `src/components/pixelbead/PixelBeadApp.subject.test.tsx`
 
-- [ ] **Step 1: Write failing workflow tests**
+- [x] **Step 1: Write failing workflow tests**
 
 Create `src/components/pixelbead/PixelBeadApp.subject.test.tsx`:
 
@@ -779,7 +779,7 @@ describe("PixelBeadApp subject workflow state", () => {
 });
 ```
 
-- [ ] **Step 2: Run targeted test and verify failure**
+- [x] **Step 2: Run targeted test and verify failure**
 
 Run:
 
@@ -789,7 +789,7 @@ npm run test -- src/components/pixelbead/PixelBeadApp.subject.test.tsx
 
 Expected: FAIL because `PixelBeadApp` does not pass subject workflow props to `CropStep`.
 
-- [ ] **Step 3: Add workflow state**
+- [x] **Step 3: Add workflow state**
 
 In `PixelBeadApp.tsx`, add state:
 
@@ -802,7 +802,7 @@ const [isSubjectProcessing, setIsSubjectProcessing] = useState(false);
 
 Pass these values and setters to `CropStep`. Pass `conversionMode` and `subjectWarnings` to `PreviewEditor`.
 
-- [ ] **Step 4: Convert after crop based on selected mode**
+- [x] **Step 4: Convert after crop based on selected mode**
 
 In `CropStep.tsx`, update the confirm handler logic:
 
@@ -840,7 +840,7 @@ onSubjectWarningsChange: (warnings: SubjectWarning[]) => void;
 onSubjectProcessingChange: (processing: boolean) => void;
 ```
 
-- [ ] **Step 5: Run tests and commit**
+- [x] **Step 5: Run tests and commit**
 
 Run:
 
@@ -868,7 +868,7 @@ git commit -m "feat: make subject conversion the default workflow"
 - Test: `src/components/pixelbead/CropStep.test.tsx`
 - Test: `src/components/pixelbead/PreviewEditor.test.tsx`
 
-- [ ] **Step 1: Write failing copy and component tests**
+- [x] **Step 1: Write failing copy and component tests**
 
 Append to `src/lib/pixelbead/copy.test.ts`:
 
@@ -948,7 +948,7 @@ describe("CropStep subject controls", () => {
 });
 ```
 
-- [ ] **Step 2: Run targeted tests and verify failure**
+- [x] **Step 2: Run targeted tests and verify failure**
 
 Run:
 
@@ -958,7 +958,7 @@ npm run test -- src/lib/pixelbead/copy.test.ts src/components/pixelbead/PreviewE
 
 Expected: FAIL until copy and UI props are added.
 
-- [ ] **Step 3: Add copy**
+- [x] **Step 3: Add copy**
 
 Modify `src/lib/pixelbead/copy.ts` to include:
 
@@ -987,7 +987,7 @@ subject: {
 
 Add matching English copy.
 
-- [ ] **Step 4: Add controls to CropStep**
+- [x] **Step 4: Add controls to CropStep**
 
 In `CropStep.tsx`, add mode and background controls above the advanced settings:
 
@@ -1018,7 +1018,7 @@ onSubjectProcessingChange: (processing: boolean) => void;
 
 Disable the confirm button when `isSubjectProcessing` is true.
 
-- [ ] **Step 5: Show subject metadata in PreviewEditor**
+- [x] **Step 5: Show subject metadata in PreviewEditor**
 
 Add props to `PreviewEditorProps`:
 
@@ -1037,7 +1037,7 @@ Show warning messages under the preview header:
 ))}
 ```
 
-- [ ] **Step 6: Run tests and commit**
+- [x] **Step 6: Run tests and commit**
 
 Run:
 
@@ -1063,7 +1063,7 @@ git commit -m "feat: add subject conversion controls"
 - Test: `src/components/pixelbead/PatternCanvas.test.tsx`
 - Test: `src/lib/pixelbead/export-png.test.ts`
 
-- [ ] **Step 1: Write rendering tests**
+- [x] **Step 1: Write rendering tests**
 
 Create or append `src/components/pixelbead/PatternCanvas.test.tsx`:
 
@@ -1086,7 +1086,7 @@ describe("PatternCanvas subject cells", () => {
 });
 ```
 
-- [ ] **Step 2: Run targeted tests and verify failure if component is not kind-aware**
+- [x] **Step 2: Run targeted tests and verify failure if component is not kind-aware**
 
 Run:
 
@@ -1096,7 +1096,7 @@ npm run test -- src/components/pixelbead/PatternCanvas.test.tsx src/lib/pixelbea
 
 Expected: FAIL if `PatternCanvas` assumes every cell is a colored bead.
 
-- [ ] **Step 3: Confirm preview rendering uses the shared renderer**
+- [x] **Step 3: Confirm preview rendering uses the shared renderer**
 
 `PatternCanvas.tsx` currently delegates drawing to `renderPatternToCanvas(pattern, false)`. Keep that delegation and make the shared renderer cell-kind aware in `export-png.ts`:
 
@@ -1110,7 +1110,7 @@ if (cell.kind === "empty") {
 
 Keep grid lines visible over empty cells.
 
-- [ ] **Step 4: Update export rendering**
+- [x] **Step 4: Update export rendering**
 
 In `export-png.ts`, replace the current unconditional cell fill:
 
@@ -1128,7 +1128,7 @@ context.fillRect(cell.x * cellSize, cell.y * cellSize, cellSize, cellSize);
 
 Keep `drawStats(context, pattern.stats, pattern.width * cellSize)` unchanged so stats export prints only `pattern.stats`.
 
-- [ ] **Step 5: Run tests and commit**
+- [x] **Step 5: Run tests and commit**
 
 Run:
 
@@ -1152,7 +1152,7 @@ git commit -m "feat: render subject background cells"
 - Modify: `tests/pixelbead.spec.ts`
 - Modify: `playwright.config.ts`
 
-- [ ] **Step 1: Stabilize subject dependency for E2E**
+- [x] **Step 1: Stabilize subject dependency for E2E**
 
 Add a test-only subject mask bypass controlled by:
 
@@ -1168,7 +1168,7 @@ Modify `playwright.config.ts` web server command:
 command: "NEXT_PUBLIC_PIXELBEAD_E2E_SUBJECT_MASK=checker npm run dev",
 ```
 
-- [ ] **Step 2: Extend Playwright test**
+- [x] **Step 2: Extend Playwright test**
 
 Modify `tests/pixelbead.spec.ts`:
 
@@ -1182,7 +1182,7 @@ test("uses subject-first conversion by default", async ({ page }) => {
 });
 ```
 
-- [ ] **Step 3: Run E2E**
+- [x] **Step 3: Run E2E**
 
 Run:
 
@@ -1192,7 +1192,7 @@ npm run e2e
 
 Expected: Playwright confirms subject-first default and export control.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 Run:
 
@@ -1207,7 +1207,7 @@ git commit -m "test: cover subject-first conversion flow"
 - Modify: `README.md`
 - Modify: docs if implementation notes changed
 
-- [ ] **Step 1: Update README**
+- [x] **Step 1: Update README**
 
 Add a short feature note:
 
@@ -1219,7 +1219,7 @@ PixelBead defaults to subject-first conversion for ordinary photos. The app dete
 Images are not uploaded to a server for conversion.
 ```
 
-- [ ] **Step 2: Run full verification**
+- [x] **Step 2: Run full verification**
 
 Run:
 
@@ -1237,7 +1237,7 @@ Expected:
 - Next.js production build exits 0.
 - Playwright exits 0.
 
-- [ ] **Step 3: Commit README**
+- [x] **Step 3: Commit README**
 
 Run:
 
@@ -1246,7 +1246,7 @@ git add README.md
 git commit -m "docs: document subject-first conversion"
 ```
 
-- [ ] **Step 4: Merge and deploy**
+- [x] **Step 4: Merge and deploy**
 
 After review approval:
 
