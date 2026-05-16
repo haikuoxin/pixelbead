@@ -11,6 +11,9 @@ const pixelBeadErrorCodeMap = {
   invalid_color_count: true,
   missing_browser_api: true,
   export_failed: true,
+  subject_model_load_failed: true,
+  subject_segmentation_failed: true,
+  subject_not_found: true,
 } as const satisfies Record<PixelBeadErrorCode, true>;
 
 export const PIXEL_BEAD_ERROR_CODES = Object.freeze(Object.keys(pixelBeadErrorCodeMap) as PixelBeadErrorCode[]);
@@ -27,6 +30,9 @@ const messages: Record<Language, Record<PixelBeadErrorCode, string>> = {
     invalid_color_count: "请输入有效的颜色数量。",
     missing_browser_api: "当前浏览器不支持必要的图片处理能力。",
     export_failed: "导出失败，请重试。",
+    subject_model_load_failed: "主体识别模型加载失败。你可以切换到整图转换。",
+    subject_segmentation_failed: "主体识别失败。请重新裁剪，或切换到整图转换。",
+    subject_not_found: "没有识别到清晰主体。请裁剪得更近，或切换到整图转换。",
   },
   en: {
     unsupported_format: "This image format is not supported. Please upload JPG, PNG, or WebP.",
@@ -39,6 +45,9 @@ const messages: Record<Language, Record<PixelBeadErrorCode, string>> = {
     invalid_color_count: "Enter a valid color count.",
     missing_browser_api: "This browser does not support the required image processing APIs.",
     export_failed: "Export failed. Please try again.",
+    subject_model_load_failed: "The subject detection model failed to load. You can switch to whole-image conversion.",
+    subject_segmentation_failed: "Subject detection failed. Adjust the crop or switch to whole-image conversion.",
+    subject_not_found: "No clear subject was detected. Crop closer or switch to whole-image conversion.",
   },
 };
 

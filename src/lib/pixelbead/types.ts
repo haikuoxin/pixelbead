@@ -22,7 +22,10 @@ export type PixelBeadErrorCode =
   | "invalid_grid_size"
   | "invalid_color_count"
   | "missing_browser_api"
-  | "export_failed";
+  | "export_failed"
+  | "subject_model_load_failed"
+  | "subject_segmentation_failed"
+  | "subject_not_found";
 
 export interface GridSize {
   width: number;
