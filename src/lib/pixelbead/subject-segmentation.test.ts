@@ -7,6 +7,9 @@ describe("subject segmentation provider", () => {
       drawImage: vi.fn(),
       getImageData: vi.fn(() => ({ data: new Uint8ClampedArray([0, 0, 0, 255]) })),
     } as unknown as CanvasRenderingContext2D);
+    vi.spyOn(HTMLCanvasElement.prototype, "toBlob").mockImplementation((callback) => {
+      callback(new Blob([new Uint8Array([1])], { type: "image/png" }));
+    });
   });
 
   afterEach(() => {
@@ -25,6 +28,19 @@ describe("subject segmentation provider", () => {
     await expect(provider.segment({} as HTMLImageElement, { x: 0, y: 0, width: 1, height: 1 })).rejects.toMatchObject({
       code: "subject_segmentation_failed",
     });
+  });
+
+  it("passes a cropped image blob to the background removal dependency", async () => {
+    vi.stubGlobal(
+      "createImageBitmap",
+      vi.fn(async () => ({ width: 1, height: 1 })),
+    );
+    const removeBackground = vi.fn(async () => new Blob([new Uint8Array([1])], { type: "image/png" }));
+    const provider = createSubjectSegmentationProvider(removeBackground);
+
+    await provider.segment({} as HTMLImageElement, { x: 0, y: 0, width: 1, height: 1 });
+
+    expect(removeBackground).toHaveBeenCalledWith(expect.any(Blob));
   });
 
   it("wraps dependency failures as subject segmentation failures", async () => {

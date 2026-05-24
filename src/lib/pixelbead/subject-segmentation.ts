@@ -2,7 +2,7 @@ import { codedError } from "./coded-error";
 import type { PixelCrop } from "./crop";
 import type { SubjectMask } from "./types";
 
-type RemoveBackground = (input: Blob | HTMLCanvasElement | HTMLImageElement) => Promise<Blob>;
+type RemoveBackground = (input: Blob) => Promise<Blob>;
 
 export interface SubjectSegmentationProvider {
   segment(image: HTMLImageElement, crop: PixelCrop): Promise<SubjectMask>;
@@ -16,6 +16,19 @@ function cropImageToCanvas(image: HTMLImageElement, crop: PixelCrop): HTMLCanvas
   if (!context) throw codedError("missing_browser_api");
   context.drawImage(image, crop.x, crop.y, crop.width, crop.height, 0, 0, canvas.width, canvas.height);
   return canvas;
+}
+
+async function canvasToPngBlob(canvas: HTMLCanvasElement): Promise<Blob> {
+  return new Promise((resolve, reject) => {
+    canvas.toBlob((blob) => {
+      if (!blob) {
+        reject(codedError("missing_browser_api"));
+        return;
+      }
+
+      resolve(blob);
+    }, "image/png");
+  });
 }
 
 async function blobToMask(blob: Blob): Promise<SubjectMask> {
@@ -41,7 +54,8 @@ export function createSubjectSegmentationProvider(removeBackground: RemoveBackgr
     async segment(image, crop) {
       try {
         const cropped = cropImageToCanvas(image, crop);
-        const result = await removeBackground(cropped);
+        const croppedBlob = await canvasToPngBlob(cropped);
+        const result = await removeBackground(croppedBlob);
         return await blobToMask(result);
       } catch (error) {
         if (error && typeof error === "object" && "code" in error) throw error;
